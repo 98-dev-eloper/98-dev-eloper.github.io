@@ -46,14 +46,14 @@ const DemoPage = ({ moduleName, demos, showComponentList }) => {
             minHeight: 0
           }}
         >
-          <div
+          {/* <div
             className="demo-header"
             style={{
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
               padding: "5px 20px",
               height: 50,
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <VersionSwitcher
@@ -95,7 +95,7 @@ const DemoPage = ({ moduleName, demos, showComponentList }) => {
                 }
               />
             </Tooltip>
-          </div>
+          </div> */}
 
           <Route
             exact
