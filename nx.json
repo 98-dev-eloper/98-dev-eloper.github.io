@@ -1,0 +1,116 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e"]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"],
+      "outputs": ["{options.outDir}"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rm -rf dist/{projectRoot} && cd {projectRoot} && yarn vite build --config vite.config.ts"
+      }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ],
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "maxWarnings": 0,
+        "lintFilePatterns": [
+          "{projectRoot}/**/*.{ts,tsx,js,jsx}",
+          "{projectRoot}/package.json"
+        ]
+      }
+    },
+    "test": {
+      "inputs": ["default", "^production"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bun test {projectRoot}"
+      },
+      "configurations": {
+        "watch": {
+          "args": ["--watch"]
+        }
+      }
+    },
+    "e2e": {
+      "inputs": ["default", "^production"],
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "parallel": true,
+        "record": true,
+        "cypressConfig": "{projectRoot}/cypress.config.ts",
+        "devServerTarget": "{projectName}:start:ci",
+        "testingType": "e2e"
+      }
+    },
+    "launch-e2e": {
+      "inputs": ["default", "^production"],
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "watch": true,
+        "headed": true,
+        "browser": "chrome",
+        "cypressConfig": "{projectRoot}/cypress.config.ts",
+        "devServerTarget": "{projectName}:start:ci",
+        "testingType": "e2e"
+      }
+    },
+    "publish": {
+      "dependsOn": ["test", "build", "build_umd"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs {projectName} latest"
+      }
+    },
+    "publish-beta": {
+      "dependsOn": ["test", "build", "build_umd"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs {projectName} beta"
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "conventional"
+      }
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx|mdx)"
+    ],
+    "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
+  },
+  "workspaceLayout": {
+    "appsDir": "packages",
+    "libsDir": "packages"
+  },
+  "generators": {
+    "@nx/react": {
+      "application": {
+        "babel": true
+      },
+      "library": {}
+    }
+  }
+}
