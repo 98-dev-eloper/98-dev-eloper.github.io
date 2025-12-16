@@ -65,7 +65,7 @@ const defaultState = {
   displayMenuBarAboveTools: true,
   withPreviewMode: false,
   disableSetReadOnly: false,
-  disableBpEditing: true,
+  disableBpEditing: false,
   showReadOnly: true,
   showCircularity: false,
   showMoleculeType: true,
@@ -2924,8 +2924,7 @@ function SlowComp({ annotationTypePlural }) {
   if (isOpen)
     return (
       <div>
-        I'm added via the getAdditionalEditAnnotationComps <br></br>{" "}
-        {annotationTypePlural} lalala <br></br> {annotationTypePlural} lalaa
+      
       </div>
     );
   return <div>yarp</div>;
