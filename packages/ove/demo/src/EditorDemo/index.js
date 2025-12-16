@@ -65,13 +65,13 @@ const defaultState = {
   displayMenuBarAboveTools: true,
   withPreviewMode: false,
   disableSetReadOnly: false,
-  disableBpEditing: false,
+  disableBpEditing: true,
   showReadOnly: true,
-  showCircularity: true,
+  showCircularity: false,
   showMoleculeType: true,
-  showGCContentByDefault: false,
+  showGCContentByDefault: true,
   GCDecimalDigits: 1,
-  onlyShowLabelsThatDoNotFit: true,
+  onlyShowLabelsThatDoNotFit: false,
   overrideToolbarOptions: false,
   // simpleAlignmentDemo: false,
   menuOverrideExample: false,
@@ -80,33 +80,33 @@ const defaultState = {
   overrideAddEditFeatureDialog: false,
   clickOverridesExample: false,
   doubleClickOverridesExample: false,
-  showAvailability: true,
+  showAvailability: false,
   showCicularViewInternalLabels: true,
-  showDemoOptions: !isMobile(),
-  shouldAutosave: false,
+  showDemoOptions: false,
+  shouldAutosave: true,
   generatePng: false,
   allowPanelTabDraggable: true,
   isFullscreen: false,
   isProtein: false,
   forceHeightMode: false,
   addMaxInsertSize: false,
-  showAminoAcidUnitAsCodon: false,
-  adjustCircularLabelSpacing: false,
+  showAminoAcidUnitAsCodon: true,
+  adjustCircularLabelSpacing: true,
   bpLimit: undefined,
-  nameFontSizeCircularView: false,
+  nameFontSizeCircularView: true,
   withVersionHistory: true,
   withRotateCircularView: true,
   withZoomCircularView: true,
-  setDefaultVisibilities: false,
+  setDefaultVisibilities: true,
   onNew: true,
   onImport: true,
   beforeAnnotationCreate: true,
   onSave: true,
-  onSaveAs: false,
+  onSaveAs: true,
   onRename: true,
   onDuplicate: true,
   onSelectionOrCaretChanged: false,
-  onCreateNewFromSubsequence: false,
+  onCreateNewFromSubsequence: true,
   onDelete: true,
   beforeSequenceInsertOrDelete: false,
   beforeSequenceInsertOrDeleteAsync: false,
@@ -118,7 +118,22 @@ const defaultState = {
   onCopy: true,
   onPaste: true,
   onPanelTabClose: false,
-  beforeReadOnlyChange: false
+  beforeReadOnlyChange: false,
+  smartCircViewLabelRender: true,
+  showWarningFeature: true,
+  allowPartOverhangs: true,
+  extraAnnotationPropsExample: true,
+  showAssemblyPieces: true,
+  getAdditionalEditAnnotationComps: true,
+  longSequenceName: true,
+  additionalEnzymes: true,
+  allowPartsToOverlapSelf: true,
+  chromatogramExample: true,
+  allowPrimerBasesToBeEdited: true,
+  allowMultipleFeatureDirections: true,
+  alwaysAllowSave: true,
+  onHiddenEnzymeAdd: true,
+
 };
 
 export default class EditorDemo extends React.Component {
@@ -133,7 +148,10 @@ export default class EditorDemo extends React.Component {
     };
     updateEditor(store, "DemoEditor", {
       readOnly: false,
-      sequenceData: exampleSequenceData
+      sequenceData: exampleSequenceData,
+      annotationVisibility: {
+        chromatogram: true
+      }
     });
   }
   componentDidUpdate() {
@@ -1375,11 +1393,12 @@ updateEditor(store, "DemoEditor", {
                   shouldUpdate &&
                     updateEditor(store, "DemoEditor", {
                       annotationVisibility: {
-                        features: false,
-                        primers: false,
+                        features: true,
+                        primers: true,
                         // parts: false,
-                        cutsites: false
+                        cutsites: false,
                         // orfTranslations: false
+                        chromatogram: true
                       }
                     });
                 }
@@ -1836,30 +1855,8 @@ additionalEnzymes: {
                         // chromatogramData: chromData,
                         name: "GFPvv50"
                         // sequence:
-                        //   "TTGTACACTTTTTTGTTGATATGTCATTCTTGTTGATTACATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCCCGTTATCCGGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAACGCACTATATCTTTCAAAGATGACGGGAACTACAAGACGCGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATCGTATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTCGGACACAAACTCGAATACAACTATAACTCACACAATGTATACATCACGGCAGACAAACAAAAGAATGGAATCAAAGCTAACTTCAAAATTCGCCACAACATTGAAGATGGATCTGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCGACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGCGTGACCACATGGTCCTTCTTGAGTTTGTAACTGCTGCTGGGATTACACATGGCATGGATGAGCTCGGCGGCGGCGGCAGCAAGGTCTACGGCAAGGAACAGTTTTTGCGGATGCGCCAGAGCATGTTCCCCGATCGCTAAATCGAGTAAGGATCTCCAGGCATCAAATAAAACGAAAGGCTCAGTCGAAAGACTGGGCCTTTCGTTTTATCTGTTGTTTGTCGGTGAACGCTCTCTACTAGAGTCACACTGGCTCACCTTCGGGTGGGCCTTTCTGCGTTTATACCTAGGGTACGGGTTTTGCTGCCCGCAAACGGGCTGTTCTGGTGTTGCTAGTTTGTTATCAGAATCGCAGATCCCGGCTTCAGCCGGG"
-                      },
-                      panelsShown: [
-                        [
-                          {
-                            id: "rail",
-                            name: "Linear Map"
-                          },
-                          {
-                            id: "sequence",
-                            name: "Sequence Map",
-                            active: true
-                          },
-                          {
-                            // fullScreen: true,
-                            id: "circular",
-                            name: "Circular Map"
-                          },
-                          {
-                            id: "properties",
-                            name: "Properties"
-                          }
-                        ]
-                      ]
+                        //   "TTGTACACTTTTTTGTTGATATGTCATTCTTGTTGATTACATGGTGATGTTAATGGGCACAAATTTTCTGTCAGTGGAGAGGGTGAAGGTGATGCAACATACGGAAAACTTACCCTTAAATTTATTTGCACTACTGGAAAACTACCTGTTCCATGGCCAACACTTGTCACTACTTTCTCTTATGGTGTTCAATGCTTTTCCCGTTATCCGGATCATATGAAACGGCATGACTTTTTCAAGAGTGCCATGCCCGAAGGTTATGTACAGGAACGCACTATATCTTTCAAAGATGACGGGAACTACAAGACGCGTGCTGAAGTCAAGTTTGAAGGTGATACCCTTGTTAATCGTATCGAGTTAAAAGGTATTGATTTTAAAGAAGATGGAAACATTCTCGGACACAAACTCGAATACAACTATAACTCACACAATGTATACATCACGGCAGACAAACAAAAGAATGGAATCAAAGCTAACTTCAAAATTCGCCACAACTTCAAAATTCGCCACAACATTGAAGATGGATCTGTTCAACTAGCAGACCATTATCAACAAAATACTCCAATTGGCGATGGCCCTGTCCTTTTACCAGACAACCATTACCTGTCGACACAATCTGCCCTTTCGAAAGATCCCAACGAAAAGCGTGACCACATGGTCCTTCTTGAGTTTGTAACTGCTGCTGGGATTACACATGGCATGGATGAGCTCGGCGGCGGCGGCAGCAAGGTCTACGGCAAGGAACAGTTTTTGCGGATGCGCCAGAGCATGTTCCCCGATCGCTAAATCGAGTAAGGATCTCCAGGCATCAAATAAAACGAAAGGCTCAGTCGAAAGACTGGGCCTTTCGTTTTATCTGTTGTTTGTCGGTGAACGCTCTCTACTAGAGTCACACTGGCTCACCTTCGGGTGGGCCTTTCTGCGTTTATACCTAGGGTACGGGTTTTGCTGCCCGCAAACGGGCTGTTCTGGTGTTGCTAGTTTGTTATCAGAATCGCAGATCCCGGCTTCAGCCGGG"
+                      }
                     });
                 },
                 description: `Show chromatogram data in the editor`
@@ -2298,26 +2295,26 @@ doubleClickOverrides: {
 
           <Editor
             ToolBarProps={{
-              contentLeft: (
-                <Button
-                  minimal
-                  data-tip={
-                    this.state.showDemoOptions
-                      ? "Hide Demo Options"
-                      : "Show Demo Options"
-                  }
-                  icon={
-                    this.state.showDemoOptions
-                      ? "chevron-left"
-                      : "chevron-right"
-                  }
-                  onClick={() => {
-                    this.setState({
-                      showDemoOptions: !this.state.showDemoOptions
-                    });
-                  }}
-                ></Button>
-              ),
+              // contentLeft: (
+              //   <Button
+              //     minimal
+              //     data-tip={
+              //       this.state.showDemoOptions
+              //         ? "Hide Demo Options"
+              //         : "Show Demo Options"
+              //     }
+              //     icon={
+              //       this.state.showDemoOptions
+              //         ? "chevron-left"
+              //         : "chevron-right"
+              //     }
+              //     onClick={() => {
+              //       this.setState({
+              //         showDemoOptions: !this.state.showDemoOptions
+              //       });
+              //     }}
+              //   ></Button>
+              // ),
               toolList: defaultToolList.map(t => {
                 if (t !== "alignmentTool") return t;
                 return {
