@@ -544,12 +544,8 @@ const FindPrimerBindingSitesDialog = props => {
           path: "tm",
           displayName: "Tm",
           type: "string",
-          render: (val, record) => (
-            <MeltingTemp
-              sequence={record.primerSequence}
-              InnerWrapper={({ children }) => <span>{children}</span>}
-            />
-          )
+          render: val =>
+            val != null && typeof val === "number" ? `${val.toFixed(1)}°C` : "-"
         },
         {
           path: "gcPercent",
