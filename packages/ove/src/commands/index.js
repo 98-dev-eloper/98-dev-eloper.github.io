@@ -1011,6 +1011,8 @@ const editCommandDefs = {
   },
   findPrimerBindingSites: {
     name: "Find Primer Binding Sites...",
+    hotkey: "mod+r",
+    hotkeyProps: { preventDefault: true },
     handler: props =>
       showDialog({
         dialogType: "FindPrimerBindingSitesDialog",

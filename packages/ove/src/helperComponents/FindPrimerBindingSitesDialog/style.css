@@ -11,11 +11,70 @@
   display: flex;
   gap: 20px;
   align-items: flex-start;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .tg-find-primer-binding-sites-dialog .tg-search-options .bp3-form-group {
   margin-bottom: 0;
+}
+
+/* Quality Filters Section */
+.tg-find-primer-binding-sites-dialog .tg-filter-section {
+  margin-bottom: 15px;
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  padding: 8px;
+  background: #f9fafb;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-toggle {
+  font-weight: 500;
+  color: #5c7080;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-badge {
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: #ffc107;
+  color: #333;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-options {
+  padding: 10px 0 5px 0;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-grid {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-label {
+  width: 80px;
+  font-size: 12px;
+  color: #5c7080;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-row .bp3-form-group {
+  margin-bottom: 0;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-row .bp3-input-group {
+  width: 70px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-filter-row .bp3-input {
+  width: 70px;
+  text-align: center;
 }
 
 .tg-find-primer-binding-sites-dialog .tg-search-button {
@@ -34,11 +93,53 @@
   color: #5c7080;
 }
 
-.tg-find-primer-binding-sites-dialog .tg-action-buttons {
+.tg-find-primer-binding-sites-dialog .tg-filtered-info {
+  font-weight: normal;
+  color: #a0a0a0;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+/* Vertical Layout (top: preview, bottom: table) */
+.tg-find-primer-binding-sites-dialog .tg-results-container-vertical {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-results-preview-horizontal {
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  padding: 8px;
+  background: #f5f8fa;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-preview-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #5c7080;
+  margin-bottom: 8px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-dot:first-child {
+  margin-left: 0;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-results-table {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .tg-find-primer-binding-sites-dialog .tg-dialog-footer {
@@ -50,12 +151,167 @@
   border-top: 1px solid #e1e8ed;
 }
 
-/* Mismatch highlighting in sequence display */
-.tg-find-primer-binding-sites-dialog .tg-mismatch-base {
-  color: #d9534f;
-  font-weight: bold;
+/* DataTable row hover effect */
+.tg-find-primer-binding-sites-dialog .rt-tr:hover {
+  background-color: #fff3e0 !important;
 }
 
-.tg-find-primer-binding-sites-dialog .tg-match-base {
-  color: #5cb85c;
+/* Make the preview map fit nicely */
+.tg-find-primer-binding-sites-dialog .tg-results-preview-horizontal .veEditor {
+  max-height: 120px;
+}
+
+/* Compact table styling */
+.tg-find-primer-binding-sites-dialog .rt-td {
+  font-size: 12px;
+}
+
+/* Sequence Preview Styles - SnapGene Style */
+.tg-find-primer-binding-sites-dialog .tg-sequence-preview {
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  padding: 12px;
+  background: #f5f8fa;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-sequence-preview-empty {
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  padding: 20px;
+  background: #f9fafb;
+  text-align: center;
+  color: #8a9ba8;
+  font-style: italic;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-sequence-preview-header {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #5c7080;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-preview-position {
+  font-weight: 600;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-preview-strand {
+  color: #137cbd;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-preview-mismatches {
+  color: #c23030;
+}
+
+/* SnapGene-style sequence display */
+.tg-find-primer-binding-sites-dialog .tg-sequence-display-snapgene {
+  background: #ffffff;
+  border: 1px solid #e1e8ed;
+  border-radius: 3px;
+  padding: 12px;
+  overflow-x: auto;
+  font-family: monospace;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-primer-row-snapgene {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-template-row {
+  display: flex;
+  align-items: center;
+  line-height: 1.8;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-strand-label-snapgene {
+  width: 24px;
+  color: #8a9ba8;
+  font-size: 10px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-spacer {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-template-seq {
+  display: flex;
+  font-size: 12px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-seq-char {
+  color: #5c7080;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-binding-char {
+  color: #0d8050;
+  font-weight: 600;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-mismatch-char {
+  color: #c23030;
+  font-weight: 700;
+  background: #fce4ec;
+  border-radius: 2px;
+}
+
+/* Axis row */
+.tg-find-primer-binding-sites-dialog .tg-axis-row-snapgene {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #e1e8ed;
+  font-size: 10px;
+  color: #8a9ba8;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-axis-numbers {
+  position: relative;
+  flex: 1;
+  height: 14px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-axis-tick-start {
+  position: absolute;
+  left: 0;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-axis-tick-center {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.tg-find-primer-binding-sites-dialog .tg-axis-tick-end {
+  position: absolute;
+  transform: translateX(-100%);
+}
+
+/* Legend */
+.tg-find-primer-binding-sites-dialog .tg-sequence-legend {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #5c7080;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-sample {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  margin-right: 4px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-mismatch-sample {
+  background: #c23030;
 }
