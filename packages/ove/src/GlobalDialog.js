@@ -19,6 +19,7 @@ import MergeFeaturesDialog from "./helperComponents/MergeFeaturesDialog";
 import AddOrEditPartDialog from "./helperComponents/AddOrEditPartDialog";
 import AddOrEditFeatureDialog from "./helperComponents/AddOrEditFeatureDialog";
 import AddOrEditPrimerDialog from "./helperComponents/AddOrEditPrimerDialog";
+import FindPrimerBindingSitesDialog from "./helperComponents/FindPrimerBindingSitesDialog";
 
 const Dialogs = {
   RenameSequenceDialog,
@@ -35,7 +36,8 @@ const Dialogs = {
   MergeFeaturesDialog,
   AddOrEditPartDialog,
   AddOrEditFeatureDialog,
-  AddOrEditPrimerDialog
+  AddOrEditPrimerDialog,
+  FindPrimerBindingSitesDialog
 };
 
 export function GlobalDialog(props) {

@@ -1,0 +1,61 @@
+.tg-find-primer-binding-sites-dialog {
+  min-width: 500px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-primer-sequence-input input {
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-search-options {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-search-options .bp3-form-group {
+  margin-bottom: 0;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-search-button {
+  margin-bottom: 15px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-results-section {
+  border-top: 1px solid #e1e8ed;
+  padding-top: 15px;
+  margin-top: 10px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-results-header {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #5c7080;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e1e8ed;
+}
+
+/* Mismatch highlighting in sequence display */
+.tg-find-primer-binding-sites-dialog .tg-mismatch-base {
+  color: #d9534f;
+  font-weight: bold;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-match-base {
+  color: #5cb85c;
+}

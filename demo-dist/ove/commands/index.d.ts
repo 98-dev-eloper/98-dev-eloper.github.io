@@ -243,13 +243,23 @@ export namespace commandDefs {
         export function isDisabled_5(props: any): any;
         export { isDisabled_5 as isDisabled };
     }
-    namespace rotateToCaretPosition {
+    namespace findPrimerBindingSites {
+        let name_10: string;
+        export { name_10 as name };
+        export function handler_25(props: any): void;
+        export { handler_25 as handler };
         export function isHidden_12(props: any): any;
         export { isHidden_12 as isHidden };
         export function isDisabled_6(props: any): any;
         export { isDisabled_6 as isDisabled };
-        export function handler_25(props: any): any;
-        export { handler_25 as handler };
+    }
+    namespace rotateToCaretPosition {
+        export function isHidden_13(props: any): any;
+        export { isHidden_13 as isHidden };
+        export function isDisabled_7(props: any): any;
+        export { isDisabled_7 as isDisabled };
+        export function handler_26(props: any): any;
+        export { handler_26 as handler };
         let hotkey_8: string;
         export { hotkey_8 as hotkey };
     }
@@ -258,75 +268,75 @@ export namespace commandDefs {
         export { noop as handler };
     }
     namespace changeCircularityCmd {
-        export function isHidden_13(p: any): any;
-        export { isHidden_13 as isHidden };
+        export function isHidden_14(p: any): any;
+        export { isHidden_14 as isHidden };
         export { noop as handler };
     }
     namespace cut {
-        export function isDisabled_7(props: any): any;
-        export { isDisabled_7 as isDisabled };
-        export function isHidden_14(props: any): any;
-        export { isHidden_14 as isHidden };
-        export function handler_26(props: any): void;
-        export { handler_26 as handler };
+        export function isDisabled_8(props: any): any;
+        export { isDisabled_8 as isDisabled };
+        export function isHidden_15(props: any): any;
+        export { isHidden_15 as isHidden };
+        export function handler_27(props: any): void;
+        export { handler_27 as handler };
         let hotkey_9: string;
         export { hotkey_9 as hotkey };
     }
     namespace createNewFromSubsequence {
-        export function name_10(props: any): "Create New AA Sequence From Selection" | "Create New Oligo From Selection" | "Create New DNA Sequence From Selection";
-        export { name_10 as name };
-        export function isDisabled_8(props: any): boolean;
-        export { isDisabled_8 as isDisabled };
-        export function isHidden_15(props: any): boolean;
-        export { isHidden_15 as isHidden };
-        export function handler_27(props: any): void;
-        export { handler_27 as handler };
-    }
-    namespace copy {
+        export function name_11(props: any): "Create New AA Sequence From Selection" | "Create New Oligo From Selection" | "Create New DNA Sequence From Selection";
+        export { name_11 as name };
         export function isDisabled_9(props: any): boolean;
         export { isDisabled_9 as isDisabled };
-        export function handler_28(props: any): any;
+        export function isHidden_16(props: any): boolean;
+        export { isHidden_16 as isHidden };
+        export function handler_28(props: any): void;
         export { handler_28 as handler };
+    }
+    namespace copy {
+        export function isDisabled_10(props: any): boolean;
+        export { isDisabled_10 as isDisabled };
+        export function handler_29(props: any): any;
+        export { handler_29 as handler };
         let hotkey_10: string;
         export { hotkey_10 as hotkey };
     }
     namespace paste {
-        export function isDisabled_10(props: any): any;
-        export { isDisabled_10 as isDisabled };
-        export function isHidden_16(props: any): any;
-        export { isHidden_16 as isHidden };
-        export function handler_29(props: any): any;
-        export { handler_29 as handler };
+        export function isDisabled_11(props: any): any;
+        export { isDisabled_11 as isDisabled };
+        export function isHidden_17(props: any): any;
+        export { isHidden_17 as isHidden };
+        export function handler_30(props: any): any;
+        export { handler_30 as handler };
         let hotkey_11: string;
         export { hotkey_11 as hotkey };
     }
     namespace undo {
-        export function isHidden_17(props: any): any;
-        export { isHidden_17 as isHidden };
-        export function isDisabled_11(props: any): any;
-        export { isDisabled_11 as isDisabled };
-        export function handler_30(props: any): any;
-        export { handler_30 as handler };
-        let hotkey_12: string;
-        export { hotkey_12 as hotkey };
-    }
-    namespace redo {
         export function isHidden_18(props: any): any;
         export { isHidden_18 as isHidden };
         export function isDisabled_12(props: any): any;
         export { isDisabled_12 as isDisabled };
         export function handler_31(props: any): any;
         export { handler_31 as handler };
+        let hotkey_12: string;
+        export { hotkey_12 as hotkey };
+    }
+    namespace redo {
+        export function isHidden_19(props: any): any;
+        export { isHidden_19 as isHidden };
+        export function isDisabled_13(props: any): any;
+        export { isDisabled_13 as isDisabled };
+        export function handler_32(props: any): any;
+        export { handler_32 as handler };
         let hotkey_13: string;
         export { hotkey_13 as hotkey };
     }
     namespace find {
-        export function isDisabled_13(props: any): boolean;
-        export { isDisabled_13 as isDisabled };
-        let name_11: string;
-        export { name_11 as name };
-        export function handler_32(props: any): void;
-        export { handler_32 as handler };
+        export function isDisabled_14(props: any): boolean;
+        export { isDisabled_14 as isDisabled };
+        let name_12: string;
+        export { name_12 as name };
+        export function handler_33(props: any): void;
+        export { handler_33 as handler };
         let hotkey_14: string;
         export { hotkey_14 as hotkey };
         export namespace hotkeyProps_4 {
@@ -336,26 +346,26 @@ export namespace commandDefs {
         export { hotkeyProps_4 as hotkeyProps };
     }
     namespace about {
-        export function isDisabled_14(props: any): boolean;
-        export { isDisabled_14 as isDisabled };
-        let name_12: string;
-        export { name_12 as name };
-        export function handler_33(): Promise<any>;
-        export { handler_33 as handler };
-    }
-    namespace versionNumber {
-        let name_13: string;
-        export { name_13 as name };
-        export function handler_34(): void;
-        export { handler_34 as handler };
-    }
-    namespace goTo {
         export function isDisabled_15(props: any): boolean;
         export { isDisabled_15 as isDisabled };
+        let name_13: string;
+        export { name_13 as name };
+        export function handler_34(): Promise<any>;
+        export { handler_34 as handler };
+    }
+    namespace versionNumber {
         let name_14: string;
         export { name_14 as name };
-        export function handler_35(props: any): void;
+        export function handler_35(): void;
         export { handler_35 as handler };
+    }
+    namespace goTo {
+        export function isDisabled_16(props: any): boolean;
+        export { isDisabled_16 as isDisabled };
+        let name_15: string;
+        export { name_15 as name };
+        export function handler_36(props: any): void;
+        export { handler_36 as handler };
         let hotkey_15: string;
         export { hotkey_15 as hotkey };
         export namespace hotkeyProps_5 {
@@ -365,38 +375,30 @@ export namespace commandDefs {
         export { hotkeyProps_5 as hotkeyProps };
     }
     namespace select {
-        export function isDisabled_16(props: any): boolean;
-        export { isDisabled_16 as isDisabled };
-        let name_15: string;
-        export { name_15 as name };
-        export function handler_36(props: any): void;
-        export { handler_36 as handler };
-    }
-    namespace selectAll {
-        export function handler_37(props: any, obj: any): void;
-        export { handler_37 as handler };
         export function isDisabled_17(props: any): boolean;
         export { isDisabled_17 as isDisabled };
+        let name_16: string;
+        export { name_16 as name };
+        export function handler_37(props: any): void;
+        export { handler_37 as handler };
+    }
+    namespace selectAll {
+        export function handler_38(props: any, obj: any): void;
+        export { handler_38 as handler };
+        export function isDisabled_18(props: any): boolean;
+        export { isDisabled_18 as isDisabled };
         let hotkey_16: string;
         export { hotkey_16 as hotkey };
     }
     namespace selectInverse {
-        export function isDisabled_18(props: any): false | "Selection Required";
-        export { isDisabled_18 as isDisabled };
-        export function handler_38(props: any): any;
-        export { handler_38 as handler };
+        export function isDisabled_19(props: any): false | "Selection Required";
+        export { isDisabled_19 as isDisabled };
+        export function handler_39(props: any): any;
+        export { handler_39 as handler };
         let hotkey_17: string;
         export { hotkey_17 as hotkey };
     }
     namespace complementSelection {
-        export function isHidden_19(props: any): any;
-        export { isHidden_19 as isHidden };
-        export function isDisabled_19(props: any): any;
-        export { isDisabled_19 as isDisabled };
-        export function handler_39(props: any): any;
-        export { handler_39 as handler };
-    }
-    namespace complementEntireSequence {
         export function isHidden_20(props: any): any;
         export { isHidden_20 as isHidden };
         export function isDisabled_20(props: any): any;
@@ -404,90 +406,98 @@ export namespace commandDefs {
         export function handler_40(props: any): any;
         export { handler_40 as handler };
     }
-    namespace sequenceCase {
-        export { isProtein as isHidden };
-    }
-    namespace toggleCircular {
-        let name_16: string;
-        export { name_16 as name };
-        export function isActive_13(props: any): any;
-        export { isActive_13 as isActive };
-        export function handler_41(props: any): any;
-        export { handler_41 as handler };
-    }
-    namespace toggleLinear {
-        let name_17: string;
-        export { name_17 as name };
-        export function isActive_14(props: any): boolean;
-        export { isActive_14 as isActive };
-        export function handler_42(props: any): any;
-        export { handler_42 as handler };
-    }
-    namespace circular {
+    namespace complementEntireSequence {
         export function isHidden_21(props: any): any;
         export { isHidden_21 as isHidden };
         export function isDisabled_21(props: any): any;
         export { isDisabled_21 as isDisabled };
+        export function handler_41(props: any): any;
+        export { handler_41 as handler };
+    }
+    namespace sequenceCase {
+        export { isProtein as isHidden };
+    }
+    namespace toggleCircular {
+        let name_17: string;
+        export { name_17 as name };
+        export function isActive_13(props: any): any;
+        export { isActive_13 as isActive };
+        export function handler_42(props: any): any;
+        export { handler_42 as handler };
+    }
+    namespace toggleLinear {
+        let name_18: string;
+        export { name_18 as name };
+        export function isActive_14(props: any): boolean;
+        export { isActive_14 as isActive };
         export function handler_43(props: any): any;
         export { handler_43 as handler };
-        export function isActive_15(props: any): any;
-        export { isActive_15 as isActive };
     }
-    namespace linear {
+    namespace circular {
         export function isHidden_22(props: any): any;
         export { isHidden_22 as isHidden };
         export function isDisabled_22(props: any): any;
         export { isDisabled_22 as isDisabled };
         export function handler_44(props: any): any;
         export { handler_44 as handler };
+        export function isActive_15(props: any): any;
+        export { isActive_15 as isActive };
+    }
+    namespace linear {
+        export function isHidden_23(props: any): any;
+        export { isHidden_23 as isHidden };
+        export function isDisabled_23(props: any): any;
+        export { isDisabled_23 as isDisabled };
+        export function handler_45(props: any): any;
+        export { handler_45 as handler };
         export function isActive_16(props: any): any;
         export { isActive_16 as isActive };
     }
     namespace autoAnnotateHolder {
-        export function isHidden_23(props: any): boolean;
-        export { isHidden_23 as isHidden };
-    }
-    namespace onConfigureFeatureTypesClick {
-        let name_18: string;
-        export { name_18 as name };
-        export function handler_45(p: any): any;
-        export { handler_45 as handler };
         export function isHidden_24(props: any): boolean;
         export { isHidden_24 as isHidden };
     }
-    namespace newSequence {
-        export function isHidden_25(props: any): boolean;
-        export { isHidden_25 as isHidden };
-        export function handler_46(props: any, ...rest: any[]): any;
-        export { handler_46 as handler };
-    }
-    namespace renameSequence {
-        export function isHidden_26(props: any): any;
-        export { isHidden_26 as isHidden };
-        export function isDisabled_23(props: any): any;
-        export { isDisabled_23 as isDisabled };
-        export function handler_47(props: any): void;
-        export { handler_47 as handler };
-    }
-    namespace saveSequence {
+    namespace onConfigureFeatureTypesClick {
         let name_19: string;
         export { name_19 as name };
-        export function isDisabled_24(props: any): any;
-        export { isDisabled_24 as isDisabled };
+        export function handler_46(p: any): any;
+        export { handler_46 as handler };
+        export function isHidden_25(props: any): boolean;
+        export { isHidden_25 as isHidden };
+    }
+    namespace newSequence {
+        export function isHidden_26(props: any): boolean;
+        export { isHidden_26 as isHidden };
+        export function handler_47(props: any, ...rest: any[]): any;
+        export { handler_47 as handler };
+    }
+    namespace renameSequence {
         export function isHidden_27(props: any): any;
         export { isHidden_27 as isHidden };
-        export function handler_48(props: any): any;
+        export function isDisabled_24(props: any): any;
+        export { isDisabled_24 as isDisabled };
+        export function handler_48(props: any): void;
         export { handler_48 as handler };
+    }
+    namespace saveSequence {
+        let name_20: string;
+        export { name_20 as name };
+        export function isDisabled_25(props: any): any;
+        export { isDisabled_25 as isDisabled };
+        export function isHidden_28(props: any): any;
+        export { isHidden_28 as isHidden };
+        export function handler_49(props: any): any;
+        export { handler_49 as handler };
         let hotkey_18: string;
         export { hotkey_18 as hotkey };
     }
     namespace saveSequenceAs {
-        let name_20: string;
-        export { name_20 as name };
-        export function isHidden_28(props: any): boolean;
-        export { isHidden_28 as isHidden };
-        export function handler_49(props: any): any;
-        export { handler_49 as handler };
+        let name_21: string;
+        export { name_21 as name };
+        export function isHidden_29(props: any): boolean;
+        export { isHidden_29 as isHidden };
+        export function handler_50(props: any): any;
+        export { handler_50 as handler };
         let hotkey_19: string;
         export { hotkey_19 as hotkey };
     }
@@ -496,113 +506,113 @@ export namespace commandDefs {
         export { isProtein as isHidden };
     }
     namespace deleteSequence {
-        export function isDisabled_25(props: any): any;
-        export { isDisabled_25 as isDisabled };
-        export function isHidden_29(props: any): boolean;
-        export { isHidden_29 as isHidden };
-        export function handler_50(props: any): any;
-        export { handler_50 as handler };
-    }
-    namespace duplicateSequence {
-        export function isDisabled_26(props: any): boolean;
+        export function isDisabled_26(props: any): any;
         export { isDisabled_26 as isDisabled };
         export function isHidden_30(props: any): boolean;
         export { isHidden_30 as isHidden };
-        export function handler_51(props: any, ...rest: any[]): any;
+        export function handler_51(props: any): any;
         export { handler_51 as handler };
+    }
+    namespace duplicateSequence {
+        export function isDisabled_27(props: any): boolean;
+        export { isDisabled_27 as isDisabled };
+        export function isHidden_31(props: any): boolean;
+        export { isHidden_31 as isHidden };
+        export function handler_52(props: any, ...rest: any[]): any;
+        export { handler_52 as handler };
         let hotkey_20: string;
         export { hotkey_20 as hotkey };
     }
     namespace toggleReadOnlyMode {
         export let toggle: never[];
-        export function isDisabled_27(props: any): any;
-        export { isDisabled_27 as isDisabled };
-        export function isHidden_31(props: any): boolean;
-        export { isHidden_31 as isHidden };
-        export function isActive_17(props: any): any;
-        export { isActive_17 as isActive };
-        export function handler_52(props: any): Promise<void>;
-        export { handler_52 as handler };
-    }
-    namespace importSequence {
-        export function isHidden_32(props: any): any;
-        export { isHidden_32 as isHidden };
         export function isDisabled_28(props: any): any;
         export { isDisabled_28 as isDisabled };
-        export function handler_53(props: any): void;
+        export function isHidden_32(props: any): boolean;
+        export { isHidden_32 as isHidden };
+        export function isActive_17(props: any): any;
+        export { isActive_17 as isActive };
+        export function handler_53(props: any): Promise<void>;
         export { handler_53 as handler };
     }
-    namespace filterPartsByTagCmd {
-        export function isHidden_33(props: any): boolean;
+    namespace importSequence {
+        export function isHidden_33(props: any): any;
         export { isHidden_33 as isHidden };
-        let name_21: string;
-        export { name_21 as name };
+        export function isDisabled_29(props: any): any;
+        export { isDisabled_29 as isDisabled };
+        export function handler_54(props: any): void;
+        export { handler_54 as handler };
+    }
+    namespace filterPartsByTagCmd {
+        export function isHidden_34(props: any): boolean;
+        export { isHidden_34 as isHidden };
+        let name_22: string;
+        export { name_22 as name };
         export function component(props: any): () => import("react/jsx-runtime").JSX.Element;
         export { noop as handler };
     }
     namespace filterFeatureLengthsCmd {
-        export function name_22(props: any): import("react/jsx-runtime").JSX.Element;
-        export { name_22 as name };
+        export function name_23(props: any): import("react/jsx-runtime").JSX.Element;
+        export { name_23 as name };
         export function isActive_18(props: any): any;
         export { isActive_18 as isActive };
-        export function handler_54(props: any): void;
-        export { handler_54 as handler };
+        export function handler_55(props: any): void;
+        export { handler_55 as handler };
     }
     namespace filterPartLengthsCmd { }
     namespace filterPrimerLengthsCmd { }
     namespace featureTypesCmd {
-        export function name_23(props: any): import("react/jsx-runtime").JSX.Element;
-        export { name_23 as name };
+        export function name_24(props: any): import("react/jsx-runtime").JSX.Element;
+        export { name_24 as name };
         export function submenu_3(props: any): any[];
         export { submenu_3 as submenu };
     }
     namespace featureFilterIndividualCmd {
-        export function isHidden_34(props: any): boolean;
-        export { isHidden_34 as isHidden };
-        export function name_24(props: any): import("react/jsx-runtime").JSX.Element;
-        export { name_24 as name };
+        export function isHidden_35(props: any): boolean;
+        export { isHidden_35 as isHidden };
+        export function name_25(props: any): import("react/jsx-runtime").JSX.Element;
+        export { name_25 as name };
         export function submenu_4(props: any): any[];
         export { submenu_4 as submenu };
     }
     namespace partFilterIndividualCmd { }
     namespace primerFilterIndividualCmd { }
     namespace exportSequenceAsGenbank {
-        export function name_25(props: any): "Download GenPept File" | "Download Genbank File";
-        export { name_25 as name };
-        export function handler_55(props: any): any;
-        export { handler_55 as handler };
-    }
-    namespace exportDNASequenceAsFasta {
-        export function name_26(props: any): string;
+        export function name_26(props: any): "Download GenPept File" | "Download Genbank File";
         export { name_26 as name };
-        export function isHidden_35(props: any): boolean;
-        export { isHidden_35 as isHidden };
         export function handler_56(props: any): any;
         export { handler_56 as handler };
     }
-    namespace exportProteinSequenceAsFasta {
-        let name_27: string;
+    namespace exportDNASequenceAsFasta {
+        export function name_27(props: any): string;
         export { name_27 as name };
         export function isHidden_36(props: any): boolean;
         export { isHidden_36 as isHidden };
         export function handler_57(props: any): any;
         export { handler_57 as handler };
     }
-    namespace exportSequenceAsTeselagenJson {
+    namespace exportProteinSequenceAsFasta {
         let name_28: string;
         export { name_28 as name };
+        export function isHidden_37(props: any): boolean;
+        export { isHidden_37 as isHidden };
         export function handler_58(props: any): any;
         export { handler_58 as handler };
     }
-    namespace viewProperties {
+    namespace exportSequenceAsTeselagenJson {
+        let name_29: string;
+        export { name_29 as name };
         export function handler_59(props: any): any;
         export { handler_59 as handler };
     }
-    namespace viewRevisionHistory {
+    namespace viewProperties {
         export function handler_60(props: any): any;
         export { handler_60 as handler };
-        export function isHidden_37(props: any): boolean;
-        export { isHidden_37 as isHidden };
+    }
+    namespace viewRevisionHistory {
+        export function handler_61(props: any): any;
+        export { handler_61 as handler };
+        export function isHidden_38(props: any): boolean;
+        export { isHidden_38 as isHidden };
     }
     namespace print {
         export namespace hotkeyProps_6 {
@@ -610,36 +620,36 @@ export namespace commandDefs {
             export { preventDefault_6 as preventDefault };
         }
         export { hotkeyProps_6 as hotkeyProps };
-        export function handler_61(props: any): void;
-        export { handler_61 as handler };
+        export function handler_62(props: any): void;
+        export { handler_62 as handler };
         let hotkey_21: string;
         export { hotkey_21 as hotkey };
     }
     namespace limitsMenu {
-        export function isHidden_38(props: any): any;
-        export { isHidden_38 as isHidden };
+        export function isHidden_39(props: any): any;
+        export { isHidden_39 as isHidden };
     }
     namespace showAll {
-        export function handler_62(props: any): void;
-        export { handler_62 as handler };
-    }
-    namespace hideAll {
         export function handler_63(props: any): void;
         export { handler_63 as handler };
     }
-    namespace showAllLabels {
+    namespace hideAll {
         export function handler_64(props: any): void;
         export { handler_64 as handler };
     }
-    namespace hideAllLabels {
+    namespace showAllLabels {
         export function handler_65(props: any): void;
         export { handler_65 as handler };
+    }
+    namespace hideAllLabels {
+        export function handler_66(props: any): void;
+        export { handler_66 as handler };
     }
     let toggleAminoAcidNumbers_dna: any;
     let toggleAminoAcidNumbers_protein: any;
     namespace showChromQualScoresMenu {
-        export function isHidden_39(props: any): boolean;
-        export { isHidden_39 as isHidden };
+        export function isHidden_40(props: any): boolean;
+        export { isHidden_40 as isHidden };
     }
     let togglePartsWithSubmenu: any;
 }

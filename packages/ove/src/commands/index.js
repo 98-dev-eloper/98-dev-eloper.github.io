@@ -793,6 +793,7 @@ const editCommandDefs = {
         "newTranslation",
         "newReverseTranslation",
         "newPrimer",
+        "findPrimerBindingSites",
         "createNewFromSubsequence",
         ...(props.getAdditionalCreateOpts
           ? props.getAdditionalCreateOpts(props) || []
@@ -1001,6 +1002,25 @@ const editCommandDefs = {
   },
   newPrimer: {
     handler: props => props.handleNewPrimer(),
+    isHidden: props =>
+      props.readOnly ||
+      !props.annotationsToSupport ||
+      !props.annotationsToSupport.primers,
+    isDisabled: props =>
+      (props.readOnly && readOnlyDisabledTooltip) || props.sequenceLength === 0
+  },
+  findPrimerBindingSites: {
+    name: "Find Primer Binding Sites...",
+    handler: props =>
+      showDialog({
+        dialogType: "FindPrimerBindingSitesDialog",
+        props: {
+          editorName: props.editorName,
+          dialogProps: {
+            title: "Find Primer Binding Sites"
+          }
+        }
+      }),
     isHidden: props =>
       props.readOnly ||
       !props.annotationsToSupport ||
