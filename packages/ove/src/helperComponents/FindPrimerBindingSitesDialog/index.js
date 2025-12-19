@@ -528,7 +528,6 @@ const FindPrimerBindingSitesDialog = props => {
   const primerSequence = useFormValue(dialogFormName, "primerSequence");
 
   const [bindingSites, setBindingSites] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const [selectedSiteForPreview, setSelectedSiteForPreview] = useState(null);
 
   // Use the same Tm calculation method as MeltingTemp component
@@ -546,9 +545,12 @@ const FindPrimerBindingSitesDialog = props => {
     dispatch(change(dialogFormName, "primerSequence", value));
   }, [dispatch]);
 
-  const handleSearch = useCallback(() => {
-    if (!primerSequence || primerSequence.length < 15) {
-      window.toastr.warning("Primer sequence must be at least 15 bases long");
+  // Real-time search: automatically search when primer sequence changes
+  useEffect(() => {
+    // Need at least 12 bases for meaningful binding detection
+    if (!primerSequence || primerSequence.length < 12) {
+      setBindingSites([]);
+      setSelectedSiteForPreview(null);
       return;
     }
 
@@ -571,14 +573,12 @@ const FindPrimerBindingSitesDialog = props => {
     });
 
     setBindingSites(results);
-    setHasSearched(true);
 
     // Auto-select first result for preview
     if (results.length > 0) {
       setSelectedSiteForPreview(results[0].id);
     } else {
       setSelectedSiteForPreview(null);
-      window.toastr.info("No binding sites found");
     }
   }, [
     primerSequence,
@@ -721,26 +721,12 @@ const FindPrimerBindingSitesDialog = props => {
         />
       </div>
 
-      <Button
-        intent={Intent.PRIMARY}
-        icon="search"
-        onClick={handleSearch}
-        disabled={!primerSequence || primerSequence.length < 15}
-        className="tg-search-button"
-      >
-        Search
-      </Button>
-      {primerSequence && primerSequence.length > 0 && primerSequence.length < 15 && (
-        <div className="tg-search-hint">
-          Minimum 15bp required for meaningful binding site detection
-        </div>
-      )}
-
-      {hasSearched && (
+      {/* Real-time results section */}
+      {primerSequence && primerSequence.length >= 12 && (
         <div className="tg-results-section">
           <div className="tg-results-header">
             Found {bindingSites.length} binding site
-            {bindingSites.length !== 1 ? "s" : ""}:
+            {bindingSites.length !== 1 ? "s" : ""}
           </div>
 
           {bindingSites.length > 0 ? (
@@ -780,6 +766,12 @@ const FindPrimerBindingSitesDialog = props => {
               No binding sites found. Check the primer sequence.
             </Callout>
           )}
+        </div>
+      )}
+
+      {primerSequence && primerSequence.length > 0 && primerSequence.length < 12 && (
+        <div className="tg-search-hint">
+          Minimum 12bp required for binding site detection
         </div>
       )}
 
