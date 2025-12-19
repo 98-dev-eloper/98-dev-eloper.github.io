@@ -10,13 +10,12 @@ import {
  * Binding logic:
  * 1. The 3' end of the primer (last base) must match the template exactly
  * 2. Starting from 3' end, at least 12 consecutive bases must match (seed region)
- * 3. Within the binding region, up to 3 mismatches are allowed
- * 4. Any 5' portion that doesn't match is considered overhang
+ * 3. The first mismatch encountered ends the binding region
+ * 4. Everything beyond the first mismatch (towards 5' end) becomes overhang
  *
  * @param {Object} options
  * @param {string} options.primerSequence - The primer sequence to search for (5' -> 3')
  * @param {string} options.fullSequence - The full target sequence to search within
- * @param {number} options.maxMismatches - Maximum number of mismatches allowed in binding region (0-3)
  * @param {boolean} options.searchReverseStrand - Whether to search the reverse strand
  * @param {boolean} options.isCircular - Whether the target sequence is circular
  * @param {Function} options.calculateTm - Optional function to calculate melting temperature
@@ -26,7 +25,6 @@ import {
 export function findPrimerBindingSites({
   primerSequence,
   fullSequence,
-  maxMismatches = 3,
   searchReverseStrand = true,
   isCircular = false,
   calculateTm,
@@ -45,7 +43,6 @@ export function findPrimerBindingSites({
     primer: normalizedPrimer,
     template: normalizedSequence,
     forward: true,
-    maxMismatches,
     minBindingRegion,
     isCircular,
     calculateTm
@@ -58,7 +55,6 @@ export function findPrimerBindingSites({
       primer: normalizedPrimer,
       template: normalizedSequence,
       forward: false,
-      maxMismatches,
       minBindingRegion,
       isCircular,
       calculateTm
@@ -93,14 +89,12 @@ export function findPrimerBindingSites({
  * Binding rules (same for both strands):
  *   1. 3' end must match exactly
  *   2. At least 12 consecutive matches from 3' end (seed region)
- *   3. Extend towards 5' while mismatches <= 3
- *   4. Rest becomes overhang
+ *   3. First mismatch ends binding region - everything beyond becomes overhang
  */
 function searchForBindingSites({
   primer,
   template,
   forward,
-  maxMismatches,
   minBindingRegion,
   isCircular,
   calculateTm
@@ -124,24 +118,19 @@ function searchForBindingSites({
         templateRegion += template[idx];
       }
 
-      // Find optimal binding using full primer vs template
-      const bindingResult = findOptimalBinding(primer, templateRegion, maxMismatches, minBindingRegion);
+      // Find binding region - consecutive matches from 3' end
+      const bindingResult = findConsecutiveBinding(primer, templateRegion, minBindingRegion);
 
       if (bindingResult.isValid) {
         const overhangLength = primerLength - bindingResult.bindingLength;
         const overhangSequence = overhangLength > 0 ? primer.slice(0, overhangLength) : "";
         const bindingSeq = primer.slice(overhangLength);
 
-        // Mismatch positions are in full primer coordinates
-        // Overhang positions (0 to overhangLength-1) are non-binding
+        // Overhang positions are non-binding (positions 0 to overhangLength-1)
         const fullPrimerMismatchPositions = [];
         for (let i = 0; i < overhangLength; i++) {
           fullPrimerMismatchPositions.push(i);
         }
-        // Add actual mismatch positions from binding region
-        bindingResult.mismatchPositions.forEach(pos => {
-          fullPrimerMismatchPositions.push(pos);
-        });
 
         const actualStart = (startPos + overhangLength + templateLength) % templateLength;
         const matchedSeq = templateRegion.slice(overhangLength);
@@ -151,8 +140,8 @@ function searchForBindingSites({
           end: endPos,
           forward: true,
           strand: "+",
-          numMismatches: bindingResult.mismatchPositions.length,
-          mismatchPositions: bindingResult.mismatchPositions.map(p => p - overhangLength),
+          numMismatches: 0,
+          mismatchPositions: [],
           matchedSequence: matchedSeq,
           primerSequence: primer,
           bindingSequence: bindingSeq,
@@ -200,8 +189,8 @@ function searchForBindingSites({
       }
 
       // For reverse, check from 5' end of primerRC (which is 3' end of original primer)
-      // Use findOptimalBindingFrom5Prime which checks primerRC[0] first
-      const bindingResult = findOptimalBindingFrom5Prime(primerRC, templateRegion, maxMismatches, minBindingRegion);
+      // Use findConsecutiveBindingFrom5Prime which checks primerRC[0] first
+      const bindingResult = findConsecutiveBindingFrom5Prime(primerRC, templateRegion, minBindingRegion);
 
       if (bindingResult.isValid) {
         const overhangLength = primerLength - bindingResult.bindingLength;
@@ -211,20 +200,11 @@ function searchForBindingSites({
         const overhangSequence = overhangLength > 0 ? primer.slice(0, overhangLength) : "";
         const bindingSeq = primer.slice(overhangLength);
 
-        // Mismatch positions: convert from primerRC coordinates to original primer coordinates
-        // primerRC[i] corresponds to primer[length-1-i]
+        // Overhang positions only (no mismatches in binding region anymore)
         const fullPrimerMismatchPositions = [];
-        // Overhang in original primer is at the 5' end (left side, positions 0 to overhangLength-1)
         for (let i = 0; i < overhangLength; i++) {
           fullPrimerMismatchPositions.push(i);
         }
-        // Convert mismatch positions from primerRC to original primer
-        // primerRC binding region is positions 0 to bindingLength-1
-        // These map to primer positions (length-1) down to (length-bindingLength)
-        bindingResult.mismatchPositions.forEach(posInRC => {
-          const posInOriginal = primerLength - 1 - posInRC;
-          fullPrimerMismatchPositions.push(posInOriginal);
-        });
 
         // Binding region on + strand:
         // primerRC binds from startPos to (startPos + bindingLength - 1)
@@ -233,24 +213,13 @@ function searchForBindingSites({
         const bindingEndOnTemplate = startPos + bindingResult.bindingLength - 1;
         const matchedSeq = templateRegion.slice(0, bindingResult.bindingLength);
 
-        // Mismatch positions relative to binding sequence (in original primer coordinates)
-        // Binding region in original primer is positions overhangLength to length-1
-        // Mismatch positions need to be converted to be relative to binding start
-        const bindingMismatchPositions = bindingResult.mismatchPositions.map(posInRC => {
-          // posInRC is in primerRC coordinates (0 = 5' end of RC = 3' end of original)
-          // In binding region of original primer, position 0 is primer[overhangLength]
-          // primerRC[posInRC] corresponds to primer[length-1-posInRC]
-          // posInBinding = (length-1-posInRC) - overhangLength
-          return primerLength - 1 - posInRC - overhangLength;
-        });
-
         results.push({
           start: bindingStartOnTemplate,
           end: bindingEndOnTemplate,
           forward: false,
           strand: "-",
-          numMismatches: bindingResult.mismatchPositions.length,
-          mismatchPositions: bindingMismatchPositions,
+          numMismatches: 0,
+          mismatchPositions: [],
           matchedSequence: matchedSeq,
           primerSequence: primer,
           bindingSequence: bindingSeq,
@@ -271,94 +240,69 @@ function searchForBindingSites({
 }
 
 /**
- * Find the optimal binding region for a primer against a template.
+ * Find consecutive binding region for a primer against a template.
  * Checks from 3' end (last base) - used for FORWARD primers.
  *
  * Algorithm:
  * 1. Start from 3' end of primer (last base)
  * 2. 3' end must match exactly - if not, no binding
- * 3. Extend towards 5' end, counting mismatches
- * 4. Keep extending while total mismatches <= maxMismatches
- * 5. The binding region must be at least minBindingRegion with first 12bp from 3' end being consecutive matches
- * 6. Everything beyond the binding region (towards 5' end) is overhang
+ * 3. Extend towards 5' end while bases match
+ * 4. First mismatch ends the binding region - everything beyond becomes overhang
+ * 5. The binding region must be at least minBindingRegion consecutive matches
  *
- * @returns {Object} { isValid, bindingLength, mismatchPositions, consecutiveMatchesFrom3Prime }
+ * @returns {Object} { isValid, bindingLength }
  */
-function findOptimalBinding(primer, template, maxMismatches, minBindingRegion) {
+function findConsecutiveBinding(primer, template, minBindingRegion) {
   if (primer.length !== template.length) {
-    return { isValid: false, bindingLength: 0, mismatchPositions: [], consecutiveMatchesFrom3Prime: 0 };
+    return { isValid: false, bindingLength: 0 };
   }
 
   const length = primer.length;
 
   // Check 1: 3' end (last base) must match exactly
   if (primer[length - 1] !== template[length - 1]) {
-    return { isValid: false, bindingLength: 0, mismatchPositions: [], consecutiveMatchesFrom3Prime: 0 };
+    return { isValid: false, bindingLength: 0 };
   }
 
-  // Check 2: Count consecutive matches from 3' end (for seed region validation)
-  let consecutiveMatchesFrom3Prime = 0;
+  // Check 2: Count consecutive matches from 3' end
+  let bindingLength = 0;
   for (let i = length - 1; i >= 0; i--) {
     if (primer[i] === template[i]) {
-      consecutiveMatchesFrom3Prime++;
+      bindingLength++;
     } else {
+      // First mismatch - stop here, rest is overhang
       break;
     }
   }
 
   // Need at least minBindingRegion consecutive matches from 3' end
-  if (consecutiveMatchesFrom3Prime < minBindingRegion) {
-    return { isValid: false, bindingLength: 0, mismatchPositions: [], consecutiveMatchesFrom3Prime };
-  }
-
-  // Check 3: Extend binding region towards 5' end while mismatches <= maxMismatches
-  // Start from position after the consecutive match region
-  const mismatchPositions = [];
-  let bindingLength = consecutiveMatchesFrom3Prime;
-
-  // Continue extending towards 5' end (decreasing positions)
-  for (let i = length - consecutiveMatchesFrom3Prime - 1; i >= 0; i--) {
-    if (primer[i] === template[i]) {
-      // Match - extend binding
-      bindingLength++;
-    } else {
-      // Mismatch - check if we can still include it
-      if (mismatchPositions.length < maxMismatches) {
-        mismatchPositions.push(i);
-        bindingLength++;
-      } else {
-        // Too many mismatches - stop here, rest is overhang
-        break;
-      }
-    }
+  if (bindingLength < minBindingRegion) {
+    return { isValid: false, bindingLength: 0 };
   }
 
   return {
     isValid: true,
-    bindingLength,
-    mismatchPositions,
-    consecutiveMatchesFrom3Prime
+    bindingLength
   };
 }
 
 /**
- * Find the optimal binding region for a primer against a template.
+ * Find consecutive binding region for a primer against a template.
  * Checks from 5' end (first base) - used for REVERSE primers where we're
  * checking primerRC against template, but need to validate original primer's 3' end.
  *
  * Algorithm:
  * 1. Start from 5' end of primer (first base) - this is original primer's 3' end
  * 2. 5' end must match exactly - if not, no binding
- * 3. Extend towards 3' end, counting mismatches
- * 4. Keep extending while total mismatches <= maxMismatches
- * 5. The binding region must be at least minBindingRegion with first 12bp from 5' end being consecutive matches
- * 6. Everything beyond the binding region (towards 3' end) is overhang
+ * 3. Extend towards 3' end while bases match
+ * 4. First mismatch ends the binding region - everything beyond becomes overhang
+ * 5. The binding region must be at least minBindingRegion consecutive matches
  *
- * @returns {Object} { isValid, bindingLength, mismatchPositions, consecutiveMatchesFrom5Prime }
+ * @returns {Object} { isValid, bindingLength }
  */
-function findOptimalBindingFrom5Prime(primer, template, maxMismatches, minBindingRegion) {
+function findConsecutiveBindingFrom5Prime(primer, template, minBindingRegion) {
   if (primer.length !== template.length) {
-    return { isValid: false, bindingLength: 0, mismatchPositions: [], consecutiveMatchesFrom5Prime: 0 };
+    return { isValid: false, bindingLength: 0 };
   }
 
   const length = primer.length;
@@ -366,51 +310,28 @@ function findOptimalBindingFrom5Prime(primer, template, maxMismatches, minBindin
   // Check 1: 5' end (first base) must match exactly
   // This is the original primer's 3' end when using primerRC
   if (primer[0] !== template[0]) {
-    return { isValid: false, bindingLength: 0, mismatchPositions: [], consecutiveMatchesFrom5Prime: 0 };
+    return { isValid: false, bindingLength: 0 };
   }
 
-  // Check 2: Count consecutive matches from 5' end (for seed region validation)
-  let consecutiveMatchesFrom5Prime = 0;
+  // Check 2: Count consecutive matches from 5' end
+  let bindingLength = 0;
   for (let i = 0; i < length; i++) {
     if (primer[i] === template[i]) {
-      consecutiveMatchesFrom5Prime++;
+      bindingLength++;
     } else {
+      // First mismatch - stop here, rest is overhang
       break;
     }
   }
 
   // Need at least minBindingRegion consecutive matches from 5' end
-  if (consecutiveMatchesFrom5Prime < minBindingRegion) {
-    return { isValid: false, bindingLength: 0, mismatchPositions: [], consecutiveMatchesFrom5Prime };
-  }
-
-  // Check 3: Extend binding region towards 3' end while mismatches <= maxMismatches
-  // Start from position after the consecutive match region
-  const mismatchPositions = [];
-  let bindingLength = consecutiveMatchesFrom5Prime;
-
-  // Continue extending towards 3' end (increasing positions)
-  for (let i = consecutiveMatchesFrom5Prime; i < length; i++) {
-    if (primer[i] === template[i]) {
-      // Match - extend binding
-      bindingLength++;
-    } else {
-      // Mismatch - check if we can still include it
-      if (mismatchPositions.length < maxMismatches) {
-        mismatchPositions.push(i);
-        bindingLength++;
-      } else {
-        // Too many mismatches - stop here, rest is overhang
-        break;
-      }
-    }
+  if (bindingLength < minBindingRegion) {
+    return { isValid: false, bindingLength: 0 };
   }
 
   return {
     isValid: true,
-    bindingLength,
-    mismatchPositions,
-    consecutiveMatchesFrom5Prime
+    bindingLength
   };
 }
 
@@ -458,17 +379,12 @@ function deduplicateBindingSites(results) {
  * Compare two binding sites and return the better one
  */
 function getBetterBindingSite(a, b) {
-  // 1. Prefer fewer mismatches
-  if (a.numMismatches !== b.numMismatches) {
-    return a.numMismatches < b.numMismatches ? a : b;
-  }
-
-  // 2. Prefer shorter overhang (more primer binds to template)
+  // 1. Prefer shorter overhang (more primer binds to template)
   if (a.overhangLength !== b.overhangLength) {
     return a.overhangLength < b.overhangLength ? a : b;
   }
 
-  // 3. Prefer longer binding region
+  // 2. Prefer longer binding region
   const aBindingLen = a.bindingSequence?.length || 0;
   const bBindingLen = b.bindingSequence?.length || 0;
   if (aBindingLen !== bBindingLen) {

@@ -998,6 +998,21 @@ const editCommandDefs = {
     isDisabled: props =>
       (props.readOnly && readOnlyDisabledTooltip) || props.sequenceLength === 0
   },
+  sequenceAlignment: {
+    name: "Sequence Alignment...",
+    handler: props =>
+      showDialog({
+        dialogType: "SequenceAlignmentDialog",
+        props: {
+          editorName: props.editorName,
+          dialogProps: {
+            title: "Sequence Alignment"
+          }
+        }
+      }),
+    isHidden: isProtein,
+    isDisabled: props => props.sequenceLength === 0
+  },
 
   rotateToCaretPosition: {
     isHidden: props =>

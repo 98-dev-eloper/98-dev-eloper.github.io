@@ -1,0 +1,121 @@
+.tg-sequence-alignment-dialog {
+  min-width: 500px;
+}
+
+.tg-sequence-alignment-dialog .tg-alignment-input {
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.tg-sequence-alignment-dialog .tg-alignment-result {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tg-sequence-alignment-dialog .bp3-radio {
+  margin-right: 15px;
+}
+
+/* Alignment Result Display */
+.tg-alignment-result-display {
+  max-height: 450px;
+  overflow: auto;
+}
+
+.tg-alignment-stats {
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+  background: #f5f8fa;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.tg-alignment-stats span {
+  font-weight: 500;
+}
+
+.tg-alignment-sequences {
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.tg-alignment-block {
+  margin-bottom: 15px;
+}
+
+.tg-block-header {
+  color: #5c7080;
+  font-size: 10px;
+  margin-bottom: 2px;
+  margin-left: 130px;
+}
+
+.tg-alignment-row {
+  display: flex;
+  align-items: center;
+}
+
+.tg-seq-name {
+  color: #137cbd;
+  font-weight: 500;
+  min-width: 120px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 10px;
+}
+
+.tg-seq-data {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.tg-base {
+  display: inline-block;
+  width: 10px;
+  text-align: center;
+}
+
+.tg-gap {
+  color: #aaa;
+}
+
+.tg-match {
+  background: #d4edda;
+  color: #155724;
+}
+
+.tg-mismatch {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.tg-consensus-row {
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.tg-consensus-data {
+  display: flex;
+  flex-wrap: nowrap;
+  color: #137cbd;
+  font-weight: bold;
+}
+
+.tg-consensus-data span {
+  display: inline-block;
+  width: 10px;
+  text-align: center;
+}
+
+.tg-position-label {
+  font-size: 10px;
+  color: #8a9ba8;
+}

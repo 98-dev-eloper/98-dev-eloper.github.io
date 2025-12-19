@@ -116,6 +116,7 @@ export default [
       "openCreateCustomEnzyme",
       "simulateDigestion",
       "simulatePCR",
+      "sequenceAlignment",
       {
         text: "Remove Duplicates",
         submenu: [

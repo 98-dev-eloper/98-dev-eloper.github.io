@@ -20,6 +20,7 @@ import AddOrEditPartDialog from "./helperComponents/AddOrEditPartDialog";
 import AddOrEditFeatureDialog from "./helperComponents/AddOrEditFeatureDialog";
 import AddOrEditPrimerDialog from "./helperComponents/AddOrEditPrimerDialog";
 import FindPrimerBindingSitesDialog from "./helperComponents/FindPrimerBindingSitesDialog";
+import SequenceAlignmentDialog from "./helperComponents/SequenceAlignmentDialog";
 
 const Dialogs = {
   RenameSequenceDialog,
@@ -37,7 +38,8 @@ const Dialogs = {
   AddOrEditPartDialog,
   AddOrEditFeatureDialog,
   AddOrEditPrimerDialog,
-  FindPrimerBindingSitesDialog
+  FindPrimerBindingSitesDialog,
+  SequenceAlignmentDialog
 };
 
 export function GlobalDialog(props) {

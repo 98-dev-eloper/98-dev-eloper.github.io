@@ -553,11 +553,11 @@ const FindPrimerBindingSitesDialog = props => {
     }
 
     const tmCalculator = getTmCalculator();
-    // Search with: max 3 mismatches, both strands, min 12bp consecutive binding from 3' end
+    // Search both strands, min 12bp consecutive binding from 3' end
+    // First mismatch ends binding region - everything beyond becomes overhang
     const results = findPrimerBindingSites({
       primerSequence: primerSequence,
       fullSequence: sequenceData.sequence,
-      maxMismatches: 3,
       searchReverseStrand: true,
       isCircular: sequenceData.circular,
       minBindingRegion: 12, // At least 12 consecutive matches from 3' end
@@ -648,11 +648,6 @@ const FindPrimerBindingSitesDialog = props => {
           displayName: "Strand",
           type: "string",
           render: val => (val === "+" ? "(+)" : "(-)")
-        },
-        {
-          path: "numMismatches",
-          displayName: "Mis",
-          type: "number"
         },
         {
           path: "overhangLength",
