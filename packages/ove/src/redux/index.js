@@ -35,6 +35,8 @@ import * as primerLengthsToHide from "./primerLengthsToHide";
 import * as partLengthsToHide from "./partLengthsToHide";
 import * as selectedPartTags from "./selectedPartTags";
 import * as temporaryAnnotations from "./temporaryAnnotations";
+// import * as fileTabs from "./fileTabs";
+import fileTabsReducer from "./fileTabs";
 import { combineReducers } from "redux";
 import createAction from "./utils/createMetaAction";
 export { default as vectorEditorMiddleware } from "./middleware";
@@ -161,10 +163,17 @@ export default function reducerFactory(initialState = {}) {
       //just a normal action
       Object.keys(state).forEach(function (editorName) {
         if (editorName === "__allEditorsOptions") return; //we deal with __allEditorsOptions below so don't pass it here
+        if (editorName === "__multiTabEditors") return; //we deal with __multiTabEditors below so don't pass it here
         newState[editorName] = editorReducer(state[editorName], action);
       });
       stateToReturn = newState;
     }
+    // Handle __multiTabEditors state slice for file tabs
+    const multiTabEditorsState = handleMultiTabEditorsAction(
+      state.__multiTabEditors,
+      action
+    );
+
     return {
       ...stateToReturn,
       //these are reducers that are not editor specific (aka shared across editor instances)
@@ -183,8 +192,35 @@ export default function reducerFactory(initialState = {}) {
           action
         );
         return acc;
-      }, {})
+      }, {}),
+      __multiTabEditors: multiTabEditorsState
     };
+  };
+}
+
+// Handle multi-tab editors state
+function handleMultiTabEditorsAction(state = {}, action) {
+  // Only process FILE_TABS actions
+  if (!action.type || !action.type.startsWith("FILE_TABS_")) {
+    return state;
+  }
+
+  const editorName = action.meta?.editorName;
+  if (!editorName) {
+    return state;
+  }
+
+  const currentEditorState = state[editorName] || {
+    tabs: [],
+    activeTabId: null,
+    tabOrder: []
+  };
+
+  const newEditorState = fileTabsReducer(currentEditorState, action);
+
+  return {
+    ...state,
+    [editorName]: newEditorState
   };
 }
 

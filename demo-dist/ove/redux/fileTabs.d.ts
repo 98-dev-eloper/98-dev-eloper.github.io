@@ -1,0 +1,21 @@
+export function getEditorNameForTab(baseEditorName: string, tabId: string): string;
+export function generateTabId(): string;
+export const addFileTab: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const closeFileTab: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const setActiveFileTab: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const updateFileTabOrder: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const renameFileTab: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const setFileTabModified: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const initializeMultiTabEditor: import('redux-act').ComplexActionCreator1<any, any, any>;
+export const restoreMultiTabState: import('redux-act').ComplexActionCreator1<any, any, any>;
+export default fileTabsReducer;
+export function getMultiTabEditorState(state: any, baseEditorName: any): any;
+export function getFileTabs(state: any, baseEditorName: any): any;
+export function getOrderedFileTabs(state: any, baseEditorName: any): any;
+export function getActiveFileTab(state: any, baseEditorName: any): any;
+export function getActiveEditorName(state: any, baseEditorName: any): string | null;
+declare const fileTabsReducer: import('redux-act').Reducer<{
+    tabs: never[];
+    activeTabId: null;
+    tabOrder: never[];
+}, import('../../../../node_modules/redux').AnyAction>;

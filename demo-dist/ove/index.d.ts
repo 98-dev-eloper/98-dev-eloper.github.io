@@ -7,6 +7,7 @@ export { default as CircularView } from './CircularView';
 export { default as SimpleCircularOrLinearView } from './SimpleCircularOrLinearView';
 export { default as RowView } from './RowView';
 export { default as RowItem } from './RowItem';
+export { default as MultiTabEditor } from './MultiTabEditor';
 export { ToolBar } from './ToolBar';
 export { default as withHover } from './helperComponents/withHover';
 export { default as updateEditor } from './updateEditor';
@@ -25,3 +26,4 @@ export { default as LinearView, LinearView as LinearViewUnconnected } from './Li
 export { default as StatusBar, StatusBar as StatusBarUnconnected } from './StatusBar';
 export { default as DigestTool, DigestTool as DigestToolUnconnected } from './DigestTool/DigestTool';
 export { default as vectorEditorReducer, vectorEditorMiddleware, actions } from './redux';
+export { addFileTab, closeFileTab, setActiveFileTab, updateFileTabOrder, renameFileTab, getEditorNameForTab, getMultiTabEditorState, getFileTabs, getOrderedFileTabs, getActiveFileTab, getActiveEditorName } from './redux/fileTabs';

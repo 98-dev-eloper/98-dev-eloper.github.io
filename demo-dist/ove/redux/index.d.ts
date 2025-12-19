@@ -1,5 +1,6 @@
 export default function reducerFactory(initialState?: {}): (state: {} | undefined, action: any) => {
     __allEditorsOptions: {};
+    __multiTabEditors: {};
 };
 export { default as vectorEditorMiddleware } from './middleware';
 export const actions: {

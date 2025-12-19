@@ -78,7 +78,13 @@
 }
 
 .tg-find-primer-binding-sites-dialog .tg-search-button {
-  margin-bottom: 15px;
+  margin-bottom: 5px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-search-hint {
+  font-size: 12px;
+  color: #a66321;
+  margin-bottom: 10px;
 }
 
 .tg-find-primer-binding-sites-dialog .tg-results-section {
@@ -314,4 +320,110 @@
 
 .tg-find-primer-binding-sites-dialog .tg-mismatch-sample {
   background: #c23030;
+}
+
+/* Overhang styles */
+.tg-find-primer-binding-sites-dialog .tg-preview-overhang {
+  color: #9c27b0;
+  font-weight: 500;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-overhang-indicator {
+  color: #9c27b0;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 4px;
+  background: #f3e5f5;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-overhang-char {
+  color: #9c27b0;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-overhang-sample {
+  background: #9c27b0;
+}
+
+/* Highlighted Primer Input Styles */
+.tg-find-primer-binding-sites-dialog .tg-highlighted-input-wrapper {
+  position: relative;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-primer-input {
+  width: 100%;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-input-transparent {
+  color: transparent;
+  caret-color: #333;
+  -webkit-text-fill-color: transparent;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-highlighted-input-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  padding: 5px 10px;
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-input-char {
+  display: inline;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-input-overhang {
+  color: #6a1b9a;
+  font-weight: 700;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-input-mismatch {
+  color: #c62828;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 2px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-input-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #5c7080;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-overhang {
+  background: #7b1fa2;
+}
+
+.tg-find-primer-binding-sites-dialog .tg-legend-mismatch {
+  background: #ef9a9a;
 }

@@ -495,38 +495,6 @@ const editCommandDefs = {
     hotkey: "mod+f",
     hotkeyProps: { preventDefault: true }
   },
-  about: {
-    isDisabled: props => props.sequenceLength === 0,
-    name: "About",
-    handler: () =>
-      showConfirmationDialog({
-        text: (
-          <div>
-            <h5>Open Vector Editor Version: {packageJson.version}</h5>
-            This editor is made by Teselagen.
-            <br />
-            <br />
-            Issues can be logged here:{" "}
-            <a href="https://github.com/TeselaGen/openVectorEditor/issues">
-              Open Vector Editor
-            </a>
-          </div>
-        ),
-        confirmButtonText: "Back",
-        cancelButtonText: null,
-        canEscapeKeyCancel: true //this is false by default
-      })
-  },
-  versionNumber: {
-    name: "OVE Version:  " + packageJson.version,
-    handler: () => {
-      const win = window.open(
-        "https://github.com/TeselaGen/openVectorEditor/commits/master",
-        "_blank"
-      );
-      win.focus();
-    }
-  },
 
   goTo: {
     isDisabled: props => props.sequenceLength === 0,

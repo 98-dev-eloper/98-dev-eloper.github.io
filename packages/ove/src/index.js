@@ -19,6 +19,7 @@ export { default as SimpleCircularOrLinearView } from "./SimpleCircularOrLinearV
 export { default as RowView, RowView as RowViewUnconnected } from "./RowView";
 export { default as RowItem } from "./RowItem";
 export { default as Editor, Editor as EditorUnconnected } from "./Editor";
+export { default as MultiTabEditor } from "./MultiTabEditor";
 export { ToolBar } from "./ToolBar";
 export {
   default as CutsiteFilter,
@@ -43,6 +44,19 @@ export {
   vectorEditorMiddleware,
   actions
 } from "./redux";
+export {
+  addFileTab,
+  closeFileTab,
+  setActiveFileTab,
+  updateFileTabOrder,
+  renameFileTab,
+  getEditorNameForTab,
+  getMultiTabEditorState,
+  getFileTabs,
+  getOrderedFileTabs,
+  getActiveFileTab,
+  getActiveEditorName
+} from "./redux/fileTabs";
 export { default as updateEditor } from "./updateEditor";
 export { default as addAlignment } from "./addAlignment";
 

@@ -1,27 +1,23 @@
-import React, { useState, useMemo, useCallback } from "react";
-import { reduxForm } from "redux-form";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { reduxForm, change } from "redux-form";
 import {
   wrapDialog,
   DataTable,
   InputField,
-  CheckboxField,
-  SelectField,
-  NumericInputField,
   useTableEntities
 } from "@teselagen/ui";
 import { compose } from "redux";
+import { connect } from "react-redux";
 import {
   Button,
   Classes,
   Callout,
-  Intent,
-  Collapse
+  Intent
 } from "@blueprintjs/core";
 import classNames from "classnames";
 import withEditorProps from "../../withEditorProps";
 import { findPrimerBindingSites } from "../../utils/findPrimerBindingSites";
 import { useFormValue } from "../../utils/useFormValue";
-import MeltingTemp from "../../StatusBar/MeltingTemp";
 import {
   calculateTm,
   calculateNebTm,
@@ -34,162 +30,186 @@ import "./style.css";
 const dialogFormName = "FindPrimerBindingSitesDialog";
 const dataTableFormName = "primerBindingSites";
 
-// Default filter values for primer quality
-const DEFAULT_FILTERS = {
-  minLength: 18,
-  maxLength: 30,
-  minTm: 50,
-  maxTm: 70,
-  minGc: 35,
-  maxGc: 65
-};
-
-// SnapGene-style primer arrow with sequence inside and mismatch bumps
-const PrimerArrowWithSequence = ({
+// Primer arrow that shows non-binding positions bent up (forward) or down (reverse)
+// Only positions in fullPrimerMismatchPositions are shown raised with diagonal connectors
+// Positions that match template stay at normal binding level
+const PrimerArrowWithMismatches = ({
   forward,
-  sequence,
-  mismatchPositions = [],
+  primerSequence,
+  fullPrimerMismatchPositions = [], // positions in full primer that don't match template
   color
 }) => {
   const charWidth = 10;
-  const height = 18;
-  const bumpHeight = 6;
-  const arrowHeadWidth = 10;
-  const primerLength = sequence.length;
-  const bodyWidth = primerLength * charWidth;
-  const totalWidth = bodyWidth + arrowHeadWidth;
-  const svgHeight = height + bumpHeight * 2;
+  const height = 16;
+  const floatOffset = 14; // Height offset for non-binding (floating) positions
+  const arrowHeadWidth = 8;
 
-  // Y positions for path
-  const yTop = bumpHeight;
-  const yBottom = bumpHeight + height;
-  const yMid = bumpHeight + height / 2;
+  if (!primerSequence) return null;
 
-  // Build the arrow path with bumps at mismatch positions
+  const seqLength = primerSequence.length;
+  const seqWidth = seqLength * charWidth;
+  const totalWidth = seqWidth + arrowHeadWidth;
+
+  // Check if there are any non-binding positions
+  const hasNonBinding = fullPrimerMismatchPositions.length > 0;
+  const totalHeight = hasNonBinding ? height + floatOffset + 4 : height + 10;
+
+  // Y positions for binding level (on template) vs floating level (off template)
+  // Forward: floating goes UP (lower Y), binding at bottom
+  // Reverse: floating goes DOWN (higher Y), binding at top
+  const bindingY = forward ? floatOffset : 0;
+  const floatY = forward ? 0 : floatOffset;
+  const bindingMidY = bindingY + height / 2;
+
+  // Helper to check if a position is non-binding
+  const isNonBinding = (pos) => fullPrimerMismatchPositions.includes(pos);
+
+  // Build SVG path that shows binding positions at one level and non-binding raised/lowered
   const buildPath = () => {
-    if (forward) {
-      // Forward primer: arrow pointing right →
-      let path = `M 0 ${yTop}`;
+    if (!hasNonBinding) {
+      // Simple arrow without any floating regions
+      const yTop = 5;
+      const yBottom = 5 + height;
+      const yMid = 5 + height / 2;
 
-      // Top edge with bumps
-      for (let i = 0; i < primerLength; i++) {
-        const xStart = i * charWidth;
-        const xEnd = (i + 1) * charWidth;
-        const isMismatch = mismatchPositions.includes(i);
-
-        if (isMismatch) {
-          const xMid = xStart + charWidth / 2;
-          path += ` L ${xMid} 0 L ${xEnd} ${yTop}`;
-        } else {
-          path += ` L ${xEnd} ${yTop}`;
-        }
+      if (forward) {
+        let path = `M 0 ${yTop}`;
+        path += ` L ${seqWidth} ${yTop}`;
+        path += ` L ${seqWidth + arrowHeadWidth} ${yMid}`;
+        path += ` L ${seqWidth} ${yBottom}`;
+        path += ` L 0 ${yBottom} Z`;
+        return path;
+      } else {
+        let path = `M 0 ${yMid}`;
+        path += ` L ${arrowHeadWidth} ${yTop}`;
+        path += ` L ${arrowHeadWidth + seqWidth} ${yTop}`;
+        path += ` L ${arrowHeadWidth + seqWidth} ${yBottom}`;
+        path += ` L ${arrowHeadWidth} ${yBottom} Z`;
+        return path;
       }
-
-      // Arrow head
-      path += ` L ${bodyWidth} ${yTop} L ${totalWidth} ${yMid} L ${bodyWidth} ${yBottom}`;
-
-      // Bottom edge with bumps (right to left)
-      for (let i = primerLength - 1; i >= 0; i--) {
-        const xStart = (i + 1) * charWidth;
-        const xEnd = i * charWidth;
-        const isMismatch = mismatchPositions.includes(i);
-
-        if (isMismatch) {
-          const xMid = xEnd + charWidth / 2;
-          path += ` L ${xMid} ${svgHeight} L ${xEnd} ${yBottom}`;
-        } else {
-          path += ` L ${xEnd} ${yBottom}`;
-        }
-      }
-
-      path += " Z";
-      return path;
-    } else {
-      // Reverse primer: arrow pointing left ←
-      let path = `M 0 ${yMid}`; // Arrow tip
-
-      // Arrow head to top
-      path += ` L ${arrowHeadWidth} ${yTop}`;
-
-      // Top edge with bumps
-      for (let i = 0; i < primerLength; i++) {
-        const xStart = arrowHeadWidth + i * charWidth;
-        const xEnd = arrowHeadWidth + (i + 1) * charWidth;
-        const isMismatch = mismatchPositions.includes(i);
-
-        if (isMismatch) {
-          const xMid = xStart + charWidth / 2;
-          path += ` L ${xMid} 0 L ${xEnd} ${yTop}`;
-        } else {
-          path += ` L ${xEnd} ${yTop}`;
-        }
-      }
-
-      // Right side down
-      path += ` L ${totalWidth} ${yBottom}`;
-
-      // Bottom edge with bumps (right to left)
-      for (let i = primerLength - 1; i >= 0; i--) {
-        const xStart = arrowHeadWidth + (i + 1) * charWidth;
-        const xEnd = arrowHeadWidth + i * charWidth;
-        const isMismatch = mismatchPositions.includes(i);
-
-        if (isMismatch) {
-          const xMid = xEnd + charWidth / 2;
-          path += ` L ${xMid} ${svgHeight} L ${xEnd} ${yBottom}`;
-        } else {
-          path += ` L ${xEnd} ${yBottom}`;
-        }
-      }
-
-      // Arrow head to tip
-      path += ` L ${arrowHeadWidth} ${yBottom} Z`;
-
-      return path;
     }
+
+    // Complex path with floating regions
+    // Group consecutive positions by binding state
+    const segments = [];
+    let currentSegment = { start: 0, isNonBinding: isNonBinding(0) };
+
+    for (let i = 1; i < seqLength; i++) {
+      const posIsNonBinding = isNonBinding(i);
+      if (posIsNonBinding !== currentSegment.isNonBinding) {
+        currentSegment.end = i - 1;
+        segments.push(currentSegment);
+        currentSegment = { start: i, isNonBinding: posIsNonBinding };
+      }
+    }
+    currentSegment.end = seqLength - 1;
+    segments.push(currentSegment);
+
+    // Build the path
+    const xOffset = forward ? 0 : arrowHeadWidth;
+
+    // Top edge path (left to right)
+    let topPath = "";
+    let bottomPath = "";
+
+    segments.forEach((seg, idx) => {
+      const startX = xOffset + seg.start * charWidth;
+      const endX = xOffset + (seg.end + 1) * charWidth;
+      const yTop = seg.isNonBinding ? floatY : bindingY;
+      const yBottom = seg.isNonBinding ? floatY + height : bindingY + height;
+
+      if (idx === 0) {
+        // First segment - start the path
+        topPath = `M ${startX} ${yTop}`;
+      } else {
+        // Connect from previous segment with diagonal
+        const prevSeg = segments[idx - 1];
+        const prevYTop = prevSeg.isNonBinding ? floatY : bindingY;
+        // Diagonal connector from prev to current
+        topPath += ` L ${startX} ${yTop}`;
+      }
+
+      // Draw top of this segment
+      topPath += ` L ${endX} ${yTop}`;
+    });
+
+    // Arrow head
+    if (forward) {
+      topPath += ` L ${seqWidth + arrowHeadWidth} ${bindingMidY}`;
+    }
+
+    // Bottom edge path (right to left)
+    for (let idx = segments.length - 1; idx >= 0; idx--) {
+      const seg = segments[idx];
+      const startX = xOffset + seg.start * charWidth;
+      const endX = xOffset + (seg.end + 1) * charWidth;
+      const yBottom = seg.isNonBinding ? floatY + height : bindingY + height;
+
+      if (idx === segments.length - 1) {
+        // Start bottom path from right
+        bottomPath = ` L ${endX} ${yBottom}`;
+      } else {
+        // Connect from previous (right) segment with diagonal
+        bottomPath += ` L ${endX} ${yBottom}`;
+      }
+
+      // Draw bottom of this segment
+      bottomPath += ` L ${startX} ${yBottom}`;
+    }
+
+    // Close the path
+    if (!forward) {
+      // For reverse, add arrow head at start
+      const firstSeg = segments[0];
+      const firstYTop = firstSeg.isNonBinding ? floatY : bindingY;
+      const firstYBottom = firstSeg.isNonBinding ? floatY + height : bindingY + height;
+      return `M 0 ${bindingMidY} L ${arrowHeadWidth} ${firstYTop}` + topPath.substring(topPath.indexOf(" L", 1)) + bottomPath + ` L ${arrowHeadWidth} ${firstYBottom} Z`;
+    }
+
+    return topPath + bottomPath + " Z";
   };
 
-  // Calculate x position for each character
-  const getCharX = index => {
-    if (forward) {
-      return index * charWidth + charWidth / 2;
-    } else {
-      return arrowHeadWidth + index * charWidth + charWidth / 2;
-    }
+  // Render text for each position
+  const renderText = () => {
+    const xOffset = forward ? 0 : arrowHeadWidth;
+
+    return primerSequence.split("").map((base, i) => {
+      const posIsNonBinding = isNonBinding(i);
+      const yPos = hasNonBinding
+        ? (posIsNonBinding ? floatY + height / 2 + 4 : bindingY + height / 2 + 4)
+        : 5 + height / 2 + 4;
+
+      return (
+        <text
+          key={i}
+          x={xOffset + i * charWidth + charWidth / 2}
+          y={yPos}
+          textAnchor="middle"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight={posIsNonBinding ? "bold" : "normal"}
+          fill={posIsNonBinding ? "#c23030" : "#ffffff"}
+        >
+          {base.toUpperCase()}
+        </text>
+      );
+    });
   };
 
   return (
     <svg
       width={totalWidth}
-      height={svgHeight}
+      height={totalHeight}
       style={{ display: "block" }}
     >
-      {/* Arrow background */}
-      <path d={buildPath()} fill={color} opacity={0.8} />
-
-      {/* Sequence text inside arrow */}
-      {sequence.split("").map((base, i) => {
-        const isMismatch = mismatchPositions.includes(i);
-        return (
-          <text
-            key={i}
-            x={getCharX(i)}
-            y={yMid + 4}
-            textAnchor="middle"
-            fontSize="11"
-            fontFamily="monospace"
-            fontWeight={isMismatch ? "bold" : "normal"}
-            fill={isMismatch ? "#c23030" : "#ffffff"}
-          >
-            {base.toUpperCase()}
-          </text>
-        );
-      })}
+      <path d={buildPath()} fill={color} opacity={0.85} stroke={color} strokeWidth="0.5" />
+      {renderText()}
     </svg>
   );
 };
 
 // Component to show sequence with custom primer visualization (SnapGene style)
+// Now uses fullPrimerMismatchPositions to show which bases don't match template
 const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
   const contextBases = 20; // Show ~20 bases on each side for fuller line
   const charWidth = 10; // Must match PrimerArrowWithSequence charWidth
@@ -202,7 +222,13 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
     );
   }
 
-  const { start, end, forward, primerSequence, mismatchPositions = [] } = site;
+  const {
+    start,
+    end,
+    forward,
+    primerSequence,
+    fullPrimerMismatchPositions = []
+  } = site;
 
   // Calculate the range to display with context
   const displayStart = Math.max(0, start - contextBases);
@@ -219,11 +245,12 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
   const afterComp = getComplementSequenceString(afterSeq);
 
   const color = forward ? "#31b231" : "#3182ce";
+  const nonBindingCount = fullPrimerMismatchPositions.length;
 
   // Render sequence with monospace characters aligned to the same width as primer arrow
-  const renderSeqChars = (seq, isBinding, isMismatchCheck) => {
+  const renderSeqChars = (seq, isBinding, isMismatchCheck, bindingMismatchPositions) => {
     return seq.split("").map((base, i) => {
-      const isMismatch = isBinding && isMismatchCheck && mismatchPositions.includes(i);
+      const isMismatch = isBinding && isMismatchCheck && bindingMismatchPositions.includes(i);
       return (
         <span
           key={i}
@@ -239,6 +266,29 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
     });
   };
 
+  // Convert fullPrimerMismatchPositions to binding region positions for display
+  // fullPrimerMismatchPositions are positions in the full primer sequence
+  // We need to map them to positions in bindingSeq (the matched template region)
+  const { overhangLength = 0 } = site;
+
+  const bindingMismatchPositions = [];
+  fullPrimerMismatchPositions.forEach(pos => {
+    if (forward) {
+      // For forward primer: overhang is at 5' end (positions 0 to overhangLength-1)
+      // Binding region starts at position overhangLength in the primer
+      // So binding position = primer position - overhangLength
+      if (pos >= overhangLength && pos < overhangLength + bindingSeq.length) {
+        bindingMismatchPositions.push(pos - overhangLength);
+      }
+    } else {
+      // For reverse primer: binding region is at the start (positions 0 to bindingSeq.length-1)
+      // Overhang is at the end
+      if (pos >= 0 && pos < bindingSeq.length) {
+        bindingMismatchPositions.push(pos);
+      }
+    }
+  });
+
   return (
     <div className="tg-sequence-preview">
       <div className="tg-sequence-preview-header">
@@ -248,9 +298,9 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
         <span className="tg-preview-strand">
           Strand: {forward ? "(+) Forward" : "(-) Reverse"}
         </span>
-        {mismatchPositions.length > 0 && (
+        {nonBindingCount > 0 && (
           <span className="tg-preview-mismatches">
-            Mismatches: {mismatchPositions.length}
+            Non-binding: {nonBindingCount}bp
           </span>
         )}
       </div>
@@ -258,13 +308,15 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
       <div className="tg-sequence-display-snapgene">
         {/* Forward primer arrow with sequence (above template) */}
         {forward && (
-          <div className="tg-primer-row-snapgene">
+          <div className="tg-primer-row-snapgene" style={{ position: "relative" }}>
             <span className="tg-strand-label-snapgene" />
-            <span className="tg-spacer" style={{ width: beforeSeq.length * charWidth }} />
-            <PrimerArrowWithSequence
+            {/* For forward primer with 5' overhang, the primer extends BEFORE the binding region
+                So we need to adjust spacer to account for overhang extending left */}
+            <span className="tg-spacer" style={{ width: Math.max(0, (beforeSeq.length - overhangLength) * charWidth) }} />
+            <PrimerArrowWithMismatches
               forward={true}
-              sequence={primerSequence}
-              mismatchPositions={mismatchPositions}
+              primerSequence={primerSequence}
+              fullPrimerMismatchPositions={fullPrimerMismatchPositions}
               color={color}
             />
           </div>
@@ -274,9 +326,9 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
         <div className="tg-template-row">
           <span className="tg-strand-label-snapgene">5'</span>
           <span className="tg-template-seq">
-            {renderSeqChars(beforeSeq, false, false)}
-            {renderSeqChars(bindingSeq, true, forward)}
-            {renderSeqChars(afterSeq, false, false)}
+            {renderSeqChars(beforeSeq, false, false, [])}
+            {renderSeqChars(bindingSeq, true, forward, bindingMismatchPositions)}
+            {renderSeqChars(afterSeq, false, false, [])}
           </span>
           <span className="tg-strand-label-snapgene">3'</span>
         </div>
@@ -285,23 +337,24 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
         <div className="tg-template-row">
           <span className="tg-strand-label-snapgene">3'</span>
           <span className="tg-template-seq">
-            {renderSeqChars(beforeComp, false, false)}
-            {renderSeqChars(bindingComp, true, !forward)}
-            {renderSeqChars(afterComp, false, false)}
+            {renderSeqChars(beforeComp, false, false, [])}
+            {renderSeqChars(bindingComp, true, !forward, bindingMismatchPositions)}
+            {renderSeqChars(afterComp, false, false, [])}
           </span>
           <span className="tg-strand-label-snapgene">5'</span>
         </div>
 
         {/* Reverse primer arrow with sequence (below template) */}
         {!forward && (
-          <div className="tg-primer-row-snapgene">
+          <div className="tg-primer-row-snapgene" style={{ position: "relative" }}>
             <span className="tg-strand-label-snapgene" />
-            {/* Subtract arrowHeadWidth (10px) since reverse arrow has head on left */}
-            <span className="tg-spacer" style={{ width: Math.max(0, beforeSeq.length * charWidth - 10) }} />
-            <PrimerArrowWithSequence
+            {/* For reverse primer, arrow head is on left. Binding region aligns with template.
+                Overhang extends to the right AFTER the binding region */}
+            <span className="tg-spacer" style={{ width: Math.max(0, beforeSeq.length * charWidth - 8) }} />
+            <PrimerArrowWithMismatches
               forward={false}
-              sequence={primerSequence}
-              mismatchPositions={mismatchPositions}
+              primerSequence={primerSequence}
+              fullPrimerMismatchPositions={fullPrimerMismatchPositions}
               color={color}
             />
           </div>
@@ -331,15 +384,91 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
       <div className="tg-sequence-legend">
         <span>
           <span className="tg-legend-sample" style={{ background: color }} />
-          Primer ({forward ? "Forward" : "Reverse"})
+          Primer ({primerSequence?.length || 0}bp)
         </span>
-        {mismatchPositions.length > 0 && (
+        {nonBindingCount > 0 && (
           <span>
             <span className="tg-legend-sample tg-mismatch-sample" />
-            Mismatch ({mismatchPositions.length})
+            Non-binding ({nonBindingCount}bp)
           </span>
         )}
       </div>
+    </div>
+  );
+};
+
+// Custom input component that shows colored text for non-binding positions
+// Shows all positions that don't match the template (both in overhang and binding regions)
+// Only allows A, T, G, C characters
+const HighlightedPrimerInput = ({ value, onChange, selectedSite, placeholder }) => {
+  const inputRef = useRef(null);
+  const [cursorPosition, setCursorPosition] = useState(null);
+
+  const { fullPrimerMismatchPositions = [] } = selectedSite || {};
+
+  const hasHighlights = selectedSite && fullPrimerMismatchPositions.length > 0;
+  const normalizedValue = (value || "").toUpperCase().replace(/\s/g, "");
+
+  // Restore cursor position after value change
+  useEffect(() => {
+    if (cursorPosition !== null && inputRef.current) {
+      inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
+    }
+  }, [value, cursorPosition]);
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    // Filter to only allow A, T, G, C (case insensitive)
+    const filteredValue = newValue.toUpperCase().replace(/[^ATGC]/g, "");
+    const cursorPos = e.target.selectionStart;
+    // Adjust cursor position based on filtered characters
+    const removedBefore = newValue.slice(0, cursorPos).replace(/[^ATGCatgc]/g, "").length;
+    setCursorPosition(removedBefore);
+    onChange(filteredValue);
+  };
+
+  return (
+    <div className="tg-highlighted-input-wrapper">
+      {/* Visible overlay with colored text - highlight non-binding positions */}
+      {normalizedValue && hasHighlights && (
+        <div className="tg-highlighted-input-overlay">
+          {normalizedValue.split("").map((base, i) => {
+            // Check if this position doesn't match the template
+            const isMismatch = fullPrimerMismatchPositions.includes(i);
+
+            return (
+              <span
+                key={i}
+                className={classNames("tg-input-char", {
+                  "tg-input-mismatch": isMismatch
+                })}
+              >
+                {base}
+              </span>
+            );
+          })}
+        </div>
+      )}
+      {/* Actual input (transparent when showing overlay) */}
+      <input
+        ref={inputRef}
+        type="text"
+        className={classNames("bp3-input tg-primer-input", {
+          "tg-input-transparent": normalizedValue && hasHighlights
+        })}
+        value={value || ""}
+        onChange={handleChange}
+        placeholder={placeholder}
+      />
+      {/* Legend below input */}
+      {hasHighlights && (
+        <div className="tg-input-legend">
+          <span className="tg-legend-item">
+            <span className="tg-legend-color tg-legend-mismatch" />
+            Non-binding ({fullPrimerMismatchPositions.length}bp)
+          </span>
+        </div>
+      )}
     </div>
   );
 };
@@ -349,32 +478,18 @@ const FindPrimerBindingSitesDialog = props => {
     sequenceData = { sequence: "" },
     hideModal,
     upsertPrimer,
-    annotationVisibilityShow
+    annotationVisibilityShow,
+    dispatch
   } = props;
 
   const { selectedEntities } = useTableEntities(dataTableFormName);
 
   const primerName = useFormValue(dialogFormName, "primerName");
   const primerSequence = useFormValue(dialogFormName, "primerSequence");
-  const searchReverseStrand = useFormValue(
-    dialogFormName,
-    "searchReverseStrand"
-  );
-  const maxMismatches = useFormValue(dialogFormName, "maxMismatches");
-
-  // Filter values
-  const minLength = useFormValue(dialogFormName, "minLength");
-  const maxLength = useFormValue(dialogFormName, "maxLength");
-  const minTm = useFormValue(dialogFormName, "minTm");
-  const maxTm = useFormValue(dialogFormName, "maxTm");
-  const minGc = useFormValue(dialogFormName, "minGc");
-  const maxGc = useFormValue(dialogFormName, "maxGc");
-  const enableFilters = useFormValue(dialogFormName, "enableFilters");
 
   const [bindingSites, setBindingSites] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedSiteForPreview, setSelectedSiteForPreview] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
 
   // Use the same Tm calculation method as MeltingTemp component
   const [tmType] = useTmType();
@@ -386,19 +501,27 @@ const FindPrimerBindingSitesDialog = props => {
         : calculateTm;
   }, [tmType]);
 
+  // Handle primer sequence change
+  const handlePrimerSequenceChange = useCallback((value) => {
+    dispatch(change(dialogFormName, "primerSequence", value));
+  }, [dispatch]);
+
   const handleSearch = useCallback(() => {
-    if (!primerSequence || primerSequence.length < 5) {
-      window.toastr.warning("Primer sequence must be at least 5 bases long");
+    if (!primerSequence || primerSequence.length < 15) {
+      window.toastr.warning("Primer sequence must be at least 15 bases long");
       return;
     }
 
     const tmCalculator = getTmCalculator();
+    // Always search with max settings: mismatch 0-3, both strands, detect overhang
     const results = findPrimerBindingSites({
       primerSequence: primerSequence,
       fullSequence: sequenceData.sequence,
-      maxMismatches: parseInt(maxMismatches) || 0,
-      searchReverseStrand: searchReverseStrand !== false,
+      maxMismatches: 3, // Always search up to 3 mismatches
+      searchReverseStrand: true, // Always search both strands
       isCircular: sequenceData.circular,
+      detectOverhang: true, // Always detect overhang
+      minBindingRegion: 15,
       calculateTm: seq => {
         try {
           return tmCalculator(seq);
@@ -422,60 +545,12 @@ const FindPrimerBindingSitesDialog = props => {
     primerSequence,
     sequenceData.sequence,
     sequenceData.circular,
-    maxMismatches,
-    searchReverseStrand,
     getTmCalculator
-  ]);
-
-  // Filter binding sites based on quality criteria
-  const filteredBindingSites = useMemo(() => {
-    if (!enableFilters) return bindingSites;
-
-    // Use actual values or defaults
-    const effectiveMinLength = minLength ?? DEFAULT_FILTERS.minLength;
-    const effectiveMaxLength = maxLength ?? DEFAULT_FILTERS.maxLength;
-    const effectiveMinTm = minTm ?? DEFAULT_FILTERS.minTm;
-    const effectiveMaxTm = maxTm ?? DEFAULT_FILTERS.maxTm;
-    const effectiveMinGc = minGc ?? DEFAULT_FILTERS.minGc;
-    const effectiveMaxGc = maxGc ?? DEFAULT_FILTERS.maxGc;
-
-    return bindingSites.filter(site => {
-      const length = site.primerSequence.length;
-      const tm = site.tm;
-      const gc = site.gcPercent;
-
-      // Length filter
-      if (length < effectiveMinLength) return false;
-      if (length > effectiveMaxLength) return false;
-
-      // Tm filter (only apply if Tm is available)
-      if (tm !== null && typeof tm === "number") {
-        if (tm < effectiveMinTm) return false;
-        if (tm > effectiveMaxTm) return false;
-      }
-
-      // GC% filter (only apply if GC is available)
-      if (gc !== null && typeof gc === "number") {
-        if (gc < effectiveMinGc) return false;
-        if (gc > effectiveMaxGc) return false;
-      }
-
-      return true;
-    });
-  }, [
-    bindingSites,
-    enableFilters,
-    minLength,
-    maxLength,
-    minTm,
-    maxTm,
-    minGc,
-    maxGc
   ]);
 
   const handleCreatePrimers = useCallback(() => {
     const selectedSites = Object.keys(selectedEntities || {})
-      .map(id => filteredBindingSites.find(site => site.id === id))
+      .map(id => bindingSites.find(site => site.id === id))
       .filter(Boolean);
 
     if (selectedSites.length === 0) {
@@ -513,7 +588,7 @@ const FindPrimerBindingSitesDialog = props => {
     hideModal();
   }, [
     selectedEntities,
-    filteredBindingSites,
+    bindingSites,
     primerName,
     upsertPrimer,
     annotationVisibilityShow,
@@ -539,6 +614,12 @@ const FindPrimerBindingSitesDialog = props => {
           path: "numMismatches",
           displayName: "Mis",
           type: "number"
+        },
+        {
+          path: "overhangLength",
+          displayName: "OH",
+          type: "number",
+          render: (val, record) => record.hasOverhang ? `${val}bp` : "-"
         },
         {
           path: "tm",
@@ -571,16 +652,14 @@ const FindPrimerBindingSitesDialog = props => {
 
   const selectedCount = Object.keys(selectedEntities || {}).length;
   const selectedIds = useMemo(
-    () => filteredBindingSites.map(s => s.id),
-    [filteredBindingSites]
+    () => bindingSites.map(s => s.id),
+    [bindingSites]
   );
 
   const previewSiteData = useMemo(() => {
     if (!selectedSiteForPreview) return null;
-    return filteredBindingSites.find(s => s.id === selectedSiteForPreview);
-  }, [selectedSiteForPreview, filteredBindingSites]);
-
-  const filteredOutCount = bindingSites.length - filteredBindingSites.length;
+    return bindingSites.find(s => s.id === selectedSiteForPreview);
+  }, [selectedSiteForPreview, bindingSites]);
 
   return (
     <div
@@ -597,146 +676,40 @@ const FindPrimerBindingSitesDialog = props => {
         defaultValue=""
       />
 
-      <InputField
-        name="primerSequence"
-        label="Primer Sequence (5' to 3')"
-        placeholder="Enter primer sequence (e.g., ATCGATCGATCG)"
-        defaultValue=""
-        className="tg-primer-sequence-input"
-      />
-
-      <div className="tg-search-options">
-        <CheckboxField
-          name="searchReverseStrand"
-          label="Search Reverse Strand"
-          defaultValue={true}
+      {/* Custom highlighted primer sequence input */}
+      <div className="bp3-form-group">
+        <label className="bp3-label">Primer Sequence (5' to 3')</label>
+        <HighlightedPrimerInput
+          value={primerSequence}
+          onChange={handlePrimerSequenceChange}
+          selectedSite={previewSiteData}
+          placeholder="Enter primer sequence (e.g., ATCGATCGATCG)"
         />
-
-        <SelectField
-          name="maxMismatches"
-          label="Allowed Mismatches"
-          defaultValue="0"
-          options={[
-            { label: "0 (Exact match)", value: "0" },
-            { label: "1 mismatch", value: "1" },
-            { label: "2 mismatches", value: "2" }
-          ]}
-        />
-      </div>
-
-      {/* Quality Filters */}
-      <div className="tg-filter-section">
-        <Button
-          minimal
-          small
-          icon={showFilters ? "chevron-down" : "chevron-right"}
-          onClick={() => setShowFilters(!showFilters)}
-          className="tg-filter-toggle"
-        >
-          Quality Filters
-          {enableFilters && filteredOutCount > 0 && (
-            <span className="tg-filter-badge">
-              {filteredOutCount} filtered out
-            </span>
-          )}
-        </Button>
-
-        <Collapse isOpen={showFilters}>
-          <div className="tg-filter-options">
-            <CheckboxField
-              name="enableFilters"
-              label="Enable quality filtering"
-              defaultValue={false}
-            />
-
-            {enableFilters && (
-              <div className="tg-filter-grid">
-                <div className="tg-filter-row">
-                  <span className="tg-filter-label">Length (bp):</span>
-                  <NumericInputField
-                    name="minLength"
-                    placeholder="Min"
-                    defaultValue={DEFAULT_FILTERS.minLength}
-                    min={5}
-                    max={50}
-                  />
-                  <span>-</span>
-                  <NumericInputField
-                    name="maxLength"
-                    placeholder="Max"
-                    defaultValue={DEFAULT_FILTERS.maxLength}
-                    min={5}
-                    max={50}
-                  />
-                </div>
-
-                <div className="tg-filter-row">
-                  <span className="tg-filter-label">Tm (C):</span>
-                  <NumericInputField
-                    name="minTm"
-                    placeholder="Min"
-                    defaultValue={DEFAULT_FILTERS.minTm}
-                    min={0}
-                    max={100}
-                  />
-                  <span>-</span>
-                  <NumericInputField
-                    name="maxTm"
-                    placeholder="Max"
-                    defaultValue={DEFAULT_FILTERS.maxTm}
-                    min={0}
-                    max={100}
-                  />
-                </div>
-
-                <div className="tg-filter-row">
-                  <span className="tg-filter-label">GC (%):</span>
-                  <NumericInputField
-                    name="minGc"
-                    placeholder="Min"
-                    defaultValue={DEFAULT_FILTERS.minGc}
-                    min={0}
-                    max={100}
-                  />
-                  <span>-</span>
-                  <NumericInputField
-                    name="maxGc"
-                    placeholder="Max"
-                    defaultValue={DEFAULT_FILTERS.maxGc}
-                    min={0}
-                    max={100}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </Collapse>
       </div>
 
       <Button
         intent={Intent.PRIMARY}
         icon="search"
         onClick={handleSearch}
-        disabled={!primerSequence || primerSequence.length < 5}
+        disabled={!primerSequence || primerSequence.length < 15}
         className="tg-search-button"
       >
         Search
       </Button>
+      {primerSequence && primerSequence.length > 0 && primerSequence.length < 15 && (
+        <div className="tg-search-hint">
+          Minimum 15bp required for meaningful binding site detection
+        </div>
+      )}
 
       {hasSearched && (
         <div className="tg-results-section">
           <div className="tg-results-header">
-            Found {filteredBindingSites.length} binding site
-            {filteredBindingSites.length !== 1 ? "s" : ""}
-            {enableFilters && filteredOutCount > 0 && (
-              <span className="tg-filtered-info">
-                ({filteredOutCount} filtered out)
-              </span>
-            )}
-            :
+            Found {bindingSites.length} binding site
+            {bindingSites.length !== 1 ? "s" : ""}:
           </div>
 
-          {filteredBindingSites.length > 0 ? (
+          {bindingSites.length > 0 ? (
             <div className="tg-results-container-vertical">
               {/* Top: Sequence Preview */}
               <SequencePreview
@@ -763,17 +736,14 @@ const FindPrimerBindingSitesDialog = props => {
                   hideSelectedCount
                   isInfinite
                   schema={schema}
-                  entities={filteredBindingSites}
+                  entities={bindingSites}
                   onRowClick={(e, row) => setSelectedSiteForPreview(row.id)}
                 />
               </div>
             </div>
           ) : (
             <Callout intent={Intent.WARNING}>
-              No binding sites found.{" "}
-              {enableFilters
-                ? "Try adjusting the quality filters or mismatch tolerance."
-                : "Try adjusting the mismatch tolerance or check the primer sequence."}
+              No binding sites found. Check the primer sequence.
             </Callout>
           )}
         </div>
@@ -801,18 +771,8 @@ export default compose(
     title: "Find Primer Binding Sites"
   }),
   withEditorProps,
+  connect(),
   reduxForm({
-    form: dialogFormName,
-    initialValues: {
-      searchReverseStrand: true,
-      maxMismatches: "0",
-      enableFilters: false,
-      minLength: DEFAULT_FILTERS.minLength,
-      maxLength: DEFAULT_FILTERS.maxLength,
-      minTm: DEFAULT_FILTERS.minTm,
-      maxTm: DEFAULT_FILTERS.maxTm,
-      minGc: DEFAULT_FILTERS.minGc,
-      maxGc: DEFAULT_FILTERS.maxGc
-    }
+    form: dialogFormName
   })
 )(FindPrimerBindingSitesDialog);

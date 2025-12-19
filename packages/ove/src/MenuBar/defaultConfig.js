@@ -43,7 +43,6 @@ export default [
           { cmd: "exportSequenceAsGenbank" },
           { cmd: "exportDNASequenceAsFasta" },
           { cmd: "exportProteinSequenceAsFasta" },
-          { cmd: "exportSequenceAsTeselagenJson" }
         ]
       },
       "--",

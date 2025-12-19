@@ -1,0 +1,312 @@
+/* MultiTabEditor - Chrome Style File Tabs */
+
+.ve-multi-tab-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Tab Bar Container */
+.ve-file-tab-bar-container {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #c4c4c4;
+  padding: 6px 8px 0;
+  flex-shrink: 0;
+  min-height: 38px;
+}
+
+.bp3-dark .ve-file-tab-bar-container {
+  background: linear-gradient(to bottom, #394b59 0%, #30404d 100%);
+  border-bottom-color: #1a2328;
+}
+
+/* Tab Bar */
+.ve-file-tab-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ve-file-tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.ve-file-tab-bar-dragging-over {
+  background: rgba(19, 124, 189, 0.1);
+}
+
+/* Individual Tab - Chrome Style */
+.ve-file-tab {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px 8px 14px;
+  min-width: 80px;
+  max-width: 200px;
+  height: 32px;
+  background: #e1e8ed;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  margin-bottom: -1px;
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+
+.ve-file-tab:hover {
+  background: #ced9e0;
+}
+
+/* Active Tab */
+.ve-file-tab-active {
+  background: #ffffff;
+  border-color: #c4c4c4;
+  z-index: 1;
+}
+
+.ve-file-tab-active:hover {
+  background: #ffffff;
+}
+
+/* Dark mode tabs */
+.bp3-dark .ve-file-tab {
+  background: #394b59;
+  color: #a7b6c2;
+}
+
+.bp3-dark .ve-file-tab:hover {
+  background: #5c7080;
+}
+
+.bp3-dark .ve-file-tab-active {
+  background: #30404d;
+  border-color: #1a2328;
+  color: #f5f8fa;
+}
+
+.bp3-dark .ve-file-tab-active:hover {
+  background: #30404d;
+}
+
+/* Dragging state */
+.ve-file-tab-dragging {
+  opacity: 0.9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* Modified indicator dot */
+.ve-file-tab-dot {
+  width: 8px;
+  height: 8px;
+  background: #137cbd;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.bp3-dark .ve-file-tab-dot {
+  background: #48aff0;
+}
+
+/* Tab name */
+.ve-file-tab-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 400;
+  color: #5c7080;
+}
+
+.ve-file-tab-active .ve-file-tab-name {
+  color: #182026;
+  font-weight: 500;
+}
+
+.bp3-dark .ve-file-tab-name {
+  color: #a7b6c2;
+}
+
+.bp3-dark .ve-file-tab-active .ve-file-tab-name {
+  color: #f5f8fa;
+}
+
+/* Close button */
+.ve-file-tab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.ve-file-tab:hover .ve-file-tab-close {
+  opacity: 0.6;
+}
+
+.ve-file-tab-close:hover {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.bp3-dark .ve-file-tab-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Show close button on modified tabs */
+.ve-file-tab-modified .ve-file-tab-close {
+  opacity: 0.4;
+}
+
+/* Add Tab Button */
+.ve-add-tab-button {
+  margin-left: 4px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.ve-add-tab-button:hover {
+  opacity: 1;
+}
+
+/* Editor Content Area */
+.ve-multi-tab-editor-content {
+  flex: 1;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.bp3-dark .ve-multi-tab-editor-content {
+  background: #30404d;
+}
+
+/* Empty State */
+.ve-multi-tab-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f5f8fa;
+  color: #5c7080;
+}
+
+.bp3-dark .ve-multi-tab-empty {
+  background: #30404d;
+  color: #a7b6c2;
+}
+
+.ve-multi-tab-empty p {
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.ve-multi-tab-empty-button {
+  padding: 10px 20px;
+  background: #137cbd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.ve-multi-tab-empty-button:hover {
+  background: #106ba3;
+}
+
+/* Tab curved edges (Chrome style) */
+.ve-file-tab::before,
+.ve-file-tab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+}
+
+.ve-file-tab::before {
+  left: -8px;
+  background: radial-gradient(circle at top left, transparent 8px, #e1e8ed 8px);
+}
+
+.ve-file-tab::after {
+  right: -8px;
+  background: radial-gradient(circle at top right, transparent 8px, #e1e8ed 8px);
+}
+
+.ve-file-tab:hover::before {
+  background: radial-gradient(circle at top left, transparent 8px, #ced9e0 8px);
+}
+
+.ve-file-tab:hover::after {
+  background: radial-gradient(circle at top right, transparent 8px, #ced9e0 8px);
+}
+
+.ve-file-tab-active::before {
+  background: radial-gradient(circle at top left, transparent 8px, #ffffff 8px);
+}
+
+.ve-file-tab-active::after {
+  background: radial-gradient(circle at top right, transparent 8px, #ffffff 8px);
+}
+
+.ve-file-tab-active:hover::before {
+  background: radial-gradient(circle at top left, transparent 8px, #ffffff 8px);
+}
+
+.ve-file-tab-active:hover::after {
+  background: radial-gradient(circle at top right, transparent 8px, #ffffff 8px);
+}
+
+/* Dark mode curved edges */
+.bp3-dark .ve-file-tab::before {
+  background: radial-gradient(circle at top left, transparent 8px, #394b59 8px);
+}
+
+.bp3-dark .ve-file-tab::after {
+  background: radial-gradient(circle at top right, transparent 8px, #394b59 8px);
+}
+
+.bp3-dark .ve-file-tab:hover::before {
+  background: radial-gradient(circle at top left, transparent 8px, #5c7080 8px);
+}
+
+.bp3-dark .ve-file-tab:hover::after {
+  background: radial-gradient(circle at top right, transparent 8px, #5c7080 8px);
+}
+
+.bp3-dark .ve-file-tab-active::before {
+  background: radial-gradient(circle at top left, transparent 8px, #30404d 8px);
+}
+
+.bp3-dark .ve-file-tab-active::after {
+  background: radial-gradient(circle at top right, transparent 8px, #30404d 8px);
+}
+
+/* First tab doesn't need left curve visible */
+.ve-file-tab:first-child::before {
+  display: none;
+}
