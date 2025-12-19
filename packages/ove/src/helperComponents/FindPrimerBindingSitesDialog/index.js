@@ -22,7 +22,8 @@ import {
   calculateTm,
   calculateNebTm,
   calculateSantaLuciaTm,
-  getComplementSequenceString
+  getComplementSequenceString,
+  getReverseComplementSequenceString
 } from "@teselagen/sequence-utils";
 import useTmType from "../../utils/useTmType";
 import "./style.css";
@@ -50,8 +51,16 @@ const PrimerArrowWithMismatches = ({
   const seqWidth = seqLength * charWidth;
   const totalWidth = seqWidth + arrowHeadWidth;
 
+  // For reverse primers, we need to reverse the display order
+  // because the arrow points left (5' on right, 3' on left)
+  // The sequence should read 5'→3' from right to left
+  const displaySequence = forward ? primerSequence : primerSequence.split("").reverse().join("");
+  const displayMismatchPositions = forward
+    ? fullPrimerMismatchPositions
+    : fullPrimerMismatchPositions.map(pos => seqLength - 1 - pos);
+
   // Check if there are any non-binding positions
-  const hasNonBinding = fullPrimerMismatchPositions.length > 0;
+  const hasNonBinding = displayMismatchPositions.length > 0;
   const totalHeight = hasNonBinding ? height + floatOffset + 4 : height + 10;
 
   // Y positions for binding level (on template) vs floating level (off template)
@@ -61,8 +70,8 @@ const PrimerArrowWithMismatches = ({
   const floatY = forward ? 0 : floatOffset;
   const bindingMidY = bindingY + height / 2;
 
-  // Helper to check if a position is non-binding
-  const isNonBinding = (pos) => fullPrimerMismatchPositions.includes(pos);
+  // Helper to check if a position is non-binding (using display positions)
+  const isNonBinding = (pos) => displayMismatchPositions.includes(pos);
 
   // Build SVG path that shows binding positions at one level and non-binding raised/lowered
   const buildPath = () => {
@@ -173,7 +182,7 @@ const PrimerArrowWithMismatches = ({
   const renderText = () => {
     const xOffset = forward ? 0 : arrowHeadWidth;
 
-    return primerSequence.split("").map((base, i) => {
+    return displaySequence.split("").map((base, i) => {
       const posIsNonBinding = isNonBinding(i);
       const yPos = hasNonBinding
         ? (posIsNonBinding ? floatY + height / 2 + 4 : bindingY + height / 2 + 4)
@@ -266,28 +275,47 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
     });
   };
 
-  // Convert fullPrimerMismatchPositions to binding region positions for display
-  // fullPrimerMismatchPositions are positions in the full primer sequence
+  // Convert fullPrimerMismatchPositions to template binding region positions for display
+  // fullPrimerMismatchPositions are positions in the full primer sequence (includes overhang)
   // We need to map them to positions in bindingSeq (the matched template region)
-  const { overhangLength = 0 } = site;
+  // IMPORTANT: Only include actual mismatches, NOT overhang positions
+  const { overhangLength = 0, mismatchPositions: siteMismatchPositions = [] } = site;
 
   const bindingMismatchPositions = [];
-  fullPrimerMismatchPositions.forEach(pos => {
-    if (forward) {
-      // For forward primer: overhang is at 5' end (positions 0 to overhangLength-1)
-      // Binding region starts at position overhangLength in the primer
-      // So binding position = primer position - overhangLength
-      if (pos >= overhangLength && pos < overhangLength + bindingSeq.length) {
-        bindingMismatchPositions.push(pos - overhangLength);
-      }
-    } else {
-      // For reverse primer: binding region is at the start (positions 0 to bindingSeq.length-1)
-      // Overhang is at the end
+
+  if (forward) {
+    // Forward primer: overhang at 5' end (left), binding at 3' end (right)
+    // Primer:  [overhang][binding region]
+    // Template alignment: primer directly matches template
+    // siteMismatchPositions are relative to binding sequence (0 = first base of binding)
+    siteMismatchPositions.forEach(pos => {
       if (pos >= 0 && pos < bindingSeq.length) {
         bindingMismatchPositions.push(pos);
       }
-    }
-  });
+    });
+  } else {
+    // Reverse primer: overhang at 5' end (left), binding at 3' end (right)
+    // Primer:       [overhang][binding region]
+    // But displayed reversed: [binding reversed][overhang reversed]
+    // And binds to - strand, so template shows complement
+    //
+    // siteMismatchPositions are in binding sequence coordinates
+    // For template display, we need to show where mismatches occur
+    // Template bindingSeq is + strand, primer binding is on - strand
+    // When reverse primer binds to - strand:
+    //   - primer[last] (3' end) binds to -strand at position 'start' on + strand
+    //   - primer[overhangLength] (start of binding) binds to -strand at position 'end' on + strand
+    //
+    // siteMismatchPositions[i] is relative to binding sequence of original primer
+    // In template, position 0 of binding corresponds to primer's binding end
+    // So we need to reverse the position: bindingSeq.length - 1 - pos
+    siteMismatchPositions.forEach(pos => {
+      if (pos >= 0 && pos < bindingSeq.length) {
+        // Reverse the position for template display
+        bindingMismatchPositions.push(bindingSeq.length - 1 - pos);
+      }
+    });
+  }
 
   return (
     <div className="tg-sequence-preview">
@@ -348,8 +376,20 @@ const SequencePreview = ({ site, fullSequence, sequenceLength }) => {
         {!forward && (
           <div className="tg-primer-row-snapgene" style={{ position: "relative" }}>
             <span className="tg-strand-label-snapgene" />
-            {/* For reverse primer, arrow head is on left. Binding region aligns with template.
-                Overhang extends to the right AFTER the binding region */}
+            {/* Reverse primer alignment:
+                - Binding region is from start to end on + strand
+                - Primer's 3' end (last base) is at template position 'start'
+                - Overhang (5' end of primer) extends AFTER the binding region (to the right)
+
+                displaySequence = reverse(primer), so displaySequence[0] = primer's 3' end (last base)
+                displaySequence[0] should align with template position 'start'
+
+                Arrow structure: [arrowhead 8px][displaySequence]
+                displaySequence[0] is at position (spacer + 8)
+                template[start] is at position (beforeSeq.length * charWidth)
+
+                So: spacer + 8 = beforeSeq.length * charWidth
+                    spacer = beforeSeq.length * charWidth - 8 */}
             <span className="tg-spacer" style={{ width: Math.max(0, beforeSeq.length * charWidth - 8) }} />
             <PrimerArrowWithMismatches
               forward={false}
@@ -513,15 +553,14 @@ const FindPrimerBindingSitesDialog = props => {
     }
 
     const tmCalculator = getTmCalculator();
-    // Always search with max settings: mismatch 0-3, both strands, detect overhang
+    // Search with: max 3 mismatches, both strands, min 12bp consecutive binding from 3' end
     const results = findPrimerBindingSites({
       primerSequence: primerSequence,
       fullSequence: sequenceData.sequence,
-      maxMismatches: 3, // Always search up to 3 mismatches
-      searchReverseStrand: true, // Always search both strands
+      maxMismatches: 3,
+      searchReverseStrand: true,
       isCircular: sequenceData.circular,
-      detectOverhang: true, // Always detect overhang
-      minBindingRegion: 15,
+      minBindingRegion: 12, // At least 12 consecutive matches from 3' end
       calculateTm: seq => {
         try {
           return tmCalculator(seq);
